@@ -7,8 +7,7 @@ import time
 import os
 import configparser
 
-from actions import actions_zhang, one_field_actions
-
+from actions import actions_zhang, one_field_actions, gen_props
 
 
 # get parameters from config file
@@ -26,7 +25,6 @@ b = config.getfloat("system_parameters", "b")
 speed_fraction = config.getfloat(
  "system_parameters", "speed_fraction"
  )  # fraction of qsl speed if loc based fitness
-#max_optimization_time = config.getint("system_parameters", "max_optimization_time")
 
 # generates actions and associated propagators
 acciones = actions_zhang(b, n)  ## acciones zhang

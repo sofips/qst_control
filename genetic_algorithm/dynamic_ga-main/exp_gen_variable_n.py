@@ -13,16 +13,14 @@ config = configparser.ConfigParser()
 
 # system parameters
 
-initial_n = 8 # set initial n
-final_n = 64
+initial_n = 8  # set initial n
+final_n = 64   # set final n
 n_step = 4
-dt = 0.15  # length of temporal steps
-b = 100  # magnetic field strength
-speed_fraction = 0.  # fraction of qsl speed
-max_optimization_time = 0 #int(n//2/0.15)
+dt = 0.15      # length of temporal steps
+b = 100        # magnetic field strength
 
 # genetic algorithm parameters
-fitness_function = 'reward_based'  # Options are: 'reward_based', 'localization_based', 'ipr_based'
+fitness_function = 'reward_based'  # Options: '{reward,loc,fid}_based'
 action_set = 'oaps'  # Options are: 'oaps', 'zhang'
 
 num_generations = 1000
@@ -42,7 +40,7 @@ crossover_probability = 0.8
 # other mutation parameters
 
 mutation_probability = 0.99
-#mutation_num_genes = n
+mutation_num_genes = 'n'
 
 # execution and results saving
 directory = sys.argv[1]
@@ -55,19 +53,17 @@ config["system_parameters"] = {
     "n_step": str(n_step),
     "dt": str(dt),
     "b": str(b),
-    "speed_fraction": str(speed_fraction),
-    #"max_optimization_time": str(max_optimization_time),
+    "action_set": action_set,
 }
 
 config["ga_initialization"] = {
     "num_generations": str(num_generations),
-    "num_genes": 'set as 5n', #str(num_genes),
+    "num_genes": '5*n', # number of genes in the chromosome, set as 5n
     "sol_per_pop": str(sol_per_pop),
     "fidelity_tolerance": str(fidelity_tolerance),
     "saturation": str(saturation),
-    "reward_decay": str(reward_decay),
     "fitness_function": fitness_function,
-    "action_set": action_set,
+    "reward_decay": str(reward_decay),
 }
 
 
@@ -82,12 +78,10 @@ config["crossover"] = {
     "crossover_probability": str(crossover_probability),
 }
 
-
 config["mutation"] = {
     "mutation_probability": str(mutation_probability),
-    "mutation_num_genes": 'set as n',
+    "mutation_num_genes": 'n',
 }
-
 
 config["saving"] = {
     "directory": directory,

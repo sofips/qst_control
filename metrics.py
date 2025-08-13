@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def fidelity(action_sequence, props, return_time=False):
+def max_fidelity(action_sequence, props, return_time=False):
 
     """
     Calculate the fidelity resulting of a given pulse sequence. The state is
@@ -78,3 +78,16 @@ def calc_ipr(state):
         ipr += np.real(state[i] * np.conjugate(state[i])) ** 2
 
     return 1 / ipr
+
+
+def mean_site(state):
+
+    chain_length = np.shape(state)[0]
+
+    ms = np.sum(
+        np.asarray([
+            np.real(state[j] * np.conjugate(state[j])) * (j + 1)
+            for j in range(0, chain_length)
+        ])
+    )
+    return ms

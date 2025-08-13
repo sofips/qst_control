@@ -25,7 +25,7 @@ def zhang_actions(field_strength, chain_length, coupling):
             nc
         ):  # transfer action to a binary list, for example: action=5,
             # x=[1, 0, 1, 0], the first and third magnetic is on
-            
+
             m[nc - 1 - ii] = A >= 2 ** (nc - 1 - ii)
             A = A - 2 ** (nc - 1 - ii) * m[nc - 1 - ii]
         return m
@@ -111,21 +111,21 @@ def gen_props(action_hamiltonians, dt):
 
 
 def refined_cns(state, action_index, props):
-    
+
     """
     Applies the action corresponding to action_index on the given state
     using the precomputed propagation matrices (props).
-    
-    Parameters: 
+
+    Parameters:
     - state (numpy.ndarray): The current state vector.
     - action_index (int): The index of the action to be applied.
     - props (numpy.ndarray): A 3D array where props[action] is the propagation
     matrix corresponding to that action.
-    
+
     Returns:
     - next_state (numpy.ndarray): The state vector after applying the action.
     """
-    
+
     # Retrieve the matrix corresponding to the action index
     p = props[action_index]
 
@@ -134,3 +134,14 @@ def refined_cns(state, action_index, props):
 
     # Return the result as a flat 1D array
     return next_state.ravel()
+
+
+def action_selector(actions, n, b):
+    if actions == 'oaps':
+        acciones = one_field_actions(b, n)
+    elif actions == 'zhang':
+        acciones = zhang_actions(b, n)
+    else:
+        raise ValueError("Invalid action set. Choose 'oaps' or 'zhang'.")
+
+    return acciones

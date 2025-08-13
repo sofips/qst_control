@@ -1,6 +1,7 @@
 import numpy as np
-from dgamod import *
-import csv
+from dgamod import  fitness_selector, generation_func, \
+                    generation_func_constructor, fidelity
+from actions import action_selector, gen_props
 import pygad
 import sys
 import time
@@ -8,86 +9,86 @@ import os
 import configparser
 import pandas as pd
 
+"""
+Implementation of genetic algorithm to find optimal control sequences for
+XX spin chains. Script is designed to run for a variety of chain lengths,
+saving the best fidelities obtained for each length in a single file and 
+the best action sequences for each length in an individual file.
+"""
 
-
-# get parameters from config file
+# access config file
 thisfolder = os.path.dirname(os.path.abspath(__file__))
 initfile = os.path.join(thisfolder, str(sys.argv[1]))
 print(initfile)
 config = configparser.ConfigParser()
 config.read(initfile)
 
-# system parameters
-initial_n = config.getint("system_parameters", "initial_n")
+
+# set chain lengths to be optimized
+initial_n = config.getint("system_parameters", "initial_n") 
 final_n = config.getint("system_parameters", "final_n")
 n_step = config.getint("system_parameters", "n_step")
+
+# system parameters (only n independent)
 dt = config.getfloat("system_parameters", "dt")
 b = config.getfloat("system_parameters", "b")
-speed_fraction = config.getfloat(
- "system_parameters", "speed_fraction"
- )  # fraction of qsl speed if loc based fitness
-#max_optimization_time = config.getint("system_parameters", "max_optimization_time")
+action_set = config.get("system_parameters", "action_set")
 
-# genetic algorithm parameters
+# genetic algorithm parameters (only n independent)
 num_generations = config.getint("ga_initialization", "num_generations")
 sol_per_pop = config.getint("ga_initialization", "sol_per_pop")
 fidelity_tolerance = config.getfloat("ga_initialization", "fidelity_tolerance")
 saturation = config.getint("ga_initialization", "saturation")
-reward_decay = config.getfloat("ga_initialization", "reward_decay")
+stop_criteria = ["saturate_" + str(saturation)]
 
-# crossover and parent selection
+reward_decay = config.getfloat("ga_initialization", "reward_decay")
+fitness_function = config.get("ga_initialization", "fitness_function")
+
+# crossover and parent selection (only n independent)
 num_parents_mating = config.getint("parent_selection", "num_parents_mating")
 parent_selection_type = config.get("parent_selection", "parent_selection_type")
 keep_elitism = config.getint("parent_selection", "keep_elitism")
 crossover_type = config.get("crossover", "crossover_type")
 crossover_probability = config.getfloat("crossover", "crossover_probability")
 
-# mutation probability
+# mutation probability (only n independent)
 mutation_probability = config.getfloat("mutation", "mutation_probability")
 
-
 # saving data details
-dirname = config.get("saving", "directory")
+main_dirname = config.get("saving", "directory")
 n_samples = config.getint("saving", "n_samples")
-filename = dirname + "/nvsmaxfid.dat"
 
-stop_criteria = ["saturate_" + str(saturation)]  # , 'reach_'+str(fidelity_tolerance)]
 
-# Create a pandas DataFrame from the collected data
-columns = ["n", "sample_index", "max_fidelity", "ttime", "cpu_time", "generations"]
+# Create a pandas DataFrame to store the collected data
+columns = ["n",
+           "sample_index",
+           "max_fidelity",
+           "ttime", "cpu_time",
+           "generations"]
+
 df = pd.DataFrame(columns=columns)
 
-fitness_function = config.get("ga_initialization", "fitness_function")
-action_set = config.get("ga_initialization", "action_set")
 
 for n in range(initial_n, final_n + 1, n_step):
     
-    config.set("system_parameters", "n", str(n))
-
-    # create a directory for each n
-    ndirname = config.get("saving", "directory") + "/n" + str(n)
-    isExist = os.path.exists(ndirname)
-    
-    if not isExist:
-        os.mkdir(ndirname)
-    else:
-        print("Warning: Directory already existed")
+    # create config instance for each n
+    nconfig = config.copy()
+    nconfig.set("system_parameters", "n", str(n))
 
     # generates actions and associated propagators
-    acciones = action_selector(
-        action_set, n, b)
-    props = gen_props(acciones, n, dt)
+    actions = action_selector(action_set, n, b)
+    props = gen_props(actions, n, dt)
 
     # set ga parameters that are proportional to chain length
-    num_genes = 5*n
-    
-    config.set("ga_initialization", "num_genes", str(num_genes))
+    num_genes_expr = config.get("ga_initialization", "num_genes")
+    num_genes = int(eval(num_genes_expr, {"n": n}))
+    nconfig.set("ga_initialization", "num_genes", str(num_genes))
 
     # mutation
-    mutation_num_genes = n
-    config.set("mutation", "mutation_num_genes", str(mutation_num_genes))
+    mutation_num_genes = config.get("mutation", "mutation_num_genes")
+    nconfig.set("mutation", "mutation_num_genes", str(mutation_num_genes))
 
-    gene_space = np.arange(0, len(acciones), 1)
+    gene_space = np.arange(0, len(actions), 1)
     gene_type = int
 
     # call construction functions
@@ -99,21 +100,22 @@ for n in range(initial_n, final_n + 1, n_step):
         props,
         fidelity_tolerance,
         reward_decay
-    ] 
+    ]
 
     fitness_func = fitness_selector(
-        fitness_function, props,dt, speed_fraction=speed_fraction, tolerance=fidelity_tolerance, reward_decay=reward_decay)
+        fitness_function, props, tolerance=fidelity_tolerance, reward_decay=reward_decay)
     mutation_type = "swap"
 
-    config_filename = ndirname + "/config.ini"
-    
+    config_filename = f"n{n}_config.ini"
+
     with open(config_filename, "w") as configfile:
-        config.write(configfile)
-    
+        nconfig.write(configfile)
+
+    # store found solutions in a list
+    nsolutions = []
+
     for i in range(n_samples):
 
-        solutions_fname = "{}/act_sequence_n{}_sample{}.dat".format(ndirname, n, i)
-        fitness_history_fname = ndirname + '/fitness_history_sample'+ str(i) + '.dat'
 
         t1 = time.time()
 
@@ -144,23 +146,25 @@ for n in range(initial_n, final_n + 1, n_step):
 
         maxg = initial_instance.generations_completed
 
-        solution, solution_fitness, solution_idx = initial_instance.best_solution()
+        solution, sol_fitness, sol_idx = initial_instance.best_solution()
 
-        evolution = time_evolution(solution, props, n, graph=False, filename=False)
-        time_max_fidelity = np.argmax(evolution) * dt
-
+        max_fidelity, time_max = fidelity(solution, props, return_time=True)
+        nsolutions = nsolutions.append(solution)
+        
         row = {
             "n": n,
             "sample_index": i,
-            "max_fidelity": format(fidelity(solution, props)),
-            "ttime": "{:.8f}".format(time_max_fidelity),
+            "max_fidelity": format(max_fidelity),
+            "ttime": "{:.8f}".format(time_max),
             "generations": maxg,
             "cpu_time": "{:.8f}".format(trun),
         }
-        
-        df = pd.concat([df, pd.DataFrame([row])], ignore_index=True)
-        
-        
-        actions_to_file(solution, solutions_fname, "w")
 
+        df = pd.concat([df, pd.DataFrame([row])], ignore_index=True)
+
+    np.savetxt(main_dirname + "/n{}.txt".format(n),
+               np.array(nsolutions, dtype=object),
+               fmt="%s")
+
+filename = main_dirname + "/results.dat"
 df.to_csv(filename, index=False)

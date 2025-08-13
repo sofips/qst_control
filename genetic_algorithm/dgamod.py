@@ -1,30 +1,10 @@
 import numpy as np
-import scipy.linalg as la
-import csv
-from actions import one_field_actions, zhang_actions, refined_cns
-from metrics import fidelity
-
-# import matplotlib.pyplot as plt
-from scipy.linalg import expm
-
-# from numba import njit
+from actions import refined_cns
+from metrics import max_fidelity
 import torch as T
 
 np.complex_ = np.complex128
 np.mat = np.asmatrix
-
-
-def fitness_func_constructor(fid_function, arguments):
-    """
-    Parameters:
-        - fidelity function(can be either fidelity or en_fidelity)
-        - arguments: arguments of fidelity functions
-    Return:
-        - lambda function: the fitness function as required by PyGAD
-    """
-    fitness = lambda vec: fid_function(vec, *arguments)
-
-    return lambda ga_instance, solution, solution_idx: fitness(solution)
 
 
 def generation_print(ga):
@@ -56,7 +36,7 @@ def generation_func(ga, props, tol):
 
     solution, solution_fitness, solution_idx = ga.best_solution()
 
-    fid, time = fidelity(solution, props, return_time=True)
+    fid, time = max_fidelity(solution, props, return_time=True)
 
     print("Generation", ga.generations_completed)
     print(
@@ -75,7 +55,11 @@ def generation_func(ga, props, tol):
 
 
 def generation_func_constructor(gen_function, arguments):
+
     """
+    Generates a function that can be used as the on_generation
+    PyGAD callback function.
+
     Parameters:
         - generation function
         - arguments: arguments of generation function
@@ -83,67 +67,10 @@ def generation_func_constructor(gen_function, arguments):
         - lambda function: the mutation function as required by PyGAD
     """
 
-    on_gen = lambda ga_instance: gen_function(ga_instance, *arguments)
+    def on_gen(ga_instance):
+        return gen_function(ga_instance, *arguments)
 
-    return lambda ga_instance: on_gen(ga_instance)
-
-
-def actions_to_file(solution, filename, condition):
-    """
-    Parameters:
-        - solution: best solution obtained
-        - filename
-        - condition: write or append
-
-    Return:
-        - saves best action sequence in file = filename
-    """
-    with open(filename, condition) as f1:
-
-        writer = csv.writer(f1, delimiter=" ")
-        solution = np.asarray(solution)
-        for i in range(len(solution)):
-            row = [solution[i]]
-            writer.writerow(row)
-
-    return True
-
-
-
-def calculate_reward(states, tolerance, reward_decay):
-
-    """
-    Reward function based on the fidelity of the final state adapted from
-    Zhang et al. (2018) parallelized for multiple states representing the evolution
-    from the initial state to the final state over discrete time episodes.
-
-    Parameters:
-    - states (numpy.ndarray): A 2D numpy array of shape (num_states, chain_length)
-    where each row represents a quantum state at a given time step.
-    - tolerance (float): A threshold value to determine the reward scaling.
-    - reward_decay (float): A decay factor applied to the rewards over time.
-    Returns:
-    - float: The total fitness value calculated based on the rewards.
-    """
-
-    # Compute fidelity for all states
-    n = np.shape(states)[1]
-    fid = np.abs(states[:, n - 1]) ** 2  # Shape: (num_states,)
-
-    # Compute rewards based on conditions
-    rewards = np.zeros_like(fid)
-    rewards[fid <= 0.8] = 10 * fid[fid <= 0.8]
-    rewards[(fid > 0.8) & (fid <= 1 - tolerance)] = 100 / (
-        1 + np.exp(10 * (1 - tolerance - fid[(fid > 0.8)
-                                             & (fid <= 1 - tolerance)]))
-    )
-    rewards[fid > 1 - tolerance] = 2500
-
-    # Compute fitness with decay
-    decay_factors = reward_decay ** np.arange(len(fid))
-    fitness = np.sum(rewards * decay_factors)
-
-    return fitness
+    return on_gen
 
 
 def generate_states(initial_state, action_sequence, props):
@@ -161,54 +88,14 @@ def generate_states(initial_state, action_sequence, props):
     return states
 
 
-def ipr_based_fitness_gpu(
-    action_sequences, props, tolerance, reward_decay, test_normalization=False
-):
-    device = "cuda"
+def reward_based_fitness_gpu(action_sequences, props, tolerance, gamma):
 
-    # Convert props to a CUDA tensor once (complex64 is faster)
-    props = T.tensor(props, dtype=T.complex64, device=device, requires_grad=False)
-
-    # Convert action sequences to a tensor
-    action_sequences = T.tensor(action_sequences, dtype=T.int64, device=device)
-
-    num_sequences, steps = action_sequences.shape
-    chain_length = props.shape[1]
-
-    # Initialize states tensor (batch dimension added)
-    states = T.zeros(
-        (num_sequences, steps + 1, chain_length), dtype=T.complex64, device=device
-    )
-    states[:, 0, 0] = 1.0  # Initial condition
-
-    # Compute states using batched matrix multiplication
-    for i in range(0, steps):
-        states[:, i + 1, :] = T.bmm(
-            props[action_sequences[:, i]], states[:, i, :].unsqueeze(-1)
-        ).squeeze(-1)
-
-    # Compute fidelity
-    fid = states[:, :, -1].abs() ** 2  # Take absolute squared of last column
-
-    ipr = 1. / T.sum(states.abs()**4, dim=2)
-    
-    rewards = fid/ipr
-
-    # Apply decay and sum fitness
-    decay_factors = reward_decay ** T.arange(steps + 1, device=device).unsqueeze(
-        0
-    )  # Shape: (1, steps)
-    fitness = T.sum(rewards * decay_factors, dim=1)  # Sum over steps
-
-    return fitness.cpu().numpy()  # Convert once at the end
-
-def reward_based_fitness_gpu(
-    action_sequences, props, tolerance, reward_decay, test_normalization=False
-):
     device = "cuda" if T.cuda.is_available() else "cpu"
 
     # Convert props to a CUDA tensor once (complex64 is faster)
-    props = T.tensor(props, dtype=T.complex64, device=device, requires_grad=False)
+    props = T.tensor(props, dtype=T.complex64,
+                     device=device,
+                     requires_grad=False)
 
     # Convert action sequences to a tensor
     action_sequences = T.tensor(action_sequences, dtype=T.int64, device=device)
@@ -218,7 +105,9 @@ def reward_based_fitness_gpu(
 
     # Initialize states tensor (batch dimension added)
     states = T.zeros(
-        (num_sequences, steps + 1, chain_length), dtype=T.complex64, device=device
+        (num_sequences, steps + 1, chain_length),
+        dtype=T.complex64,
+        device=device
     )
     states[:, 0, 0] = 1.0  # Initial condition
 
@@ -241,11 +130,50 @@ def reward_based_fitness_gpu(
     rewards[fid > 1 - tolerance] = 2500
 
     # Apply decay and sum fitness
-    decay_factors = reward_decay ** T.arange(steps + 1, device=device).unsqueeze(
+    decay_factors = gamma ** T.arange(steps + 1, device=device).unsqueeze(
         0
     )  # Shape: (1, steps)
     fitness = T.sum(rewards * decay_factors, dim=1)  # Sum over steps
 
+    return fitness.cpu().numpy()  # Convert once at the end
+
+
+def fidelity_fitness_gpu(action_sequences, props, tolerance, gamma):
+
+    device = "cuda" if T.cuda.is_available() else "cpu"
+
+    # Convert props to a CUDA tensor once (complex64 is faster)
+    props = T.tensor(props,
+                     dtype=T.complex64,
+                     device=device,
+                     requires_grad=False)
+
+    # Convert action sequences to a tensor
+    action_sequences = T.tensor(action_sequences, dtype=T.int64, device=device)
+
+    num_sequences, steps = action_sequences.shape
+    chain_length = props.shape[1]
+
+    # Initialize states tensor (batch dimension added)
+    states = T.zeros(
+        (num_sequences, steps + 1, chain_length),
+        dtype=T.complex64,
+        device=device
+    )
+    states[:, 0, 0] = 1.0  # Initial condition
+
+    # Compute states using batched matrix multiplication
+    for i in range(0, steps):
+        states[:, i + 1, :] = T.bmm(
+            props[action_sequences[:, i]], states[:, i, :].unsqueeze(-1)
+        ).squeeze(-1)
+
+    # Compute fidelity
+    fid = states[:, :, -1].abs() ** 2  # Take absolute squared of last column
+    max_fid = T.max(fid, dim=1)[0]  # Max fidelity for each action sequence
+    max_fid_times = T.argmax(fid, dim=1) / chain_length
+
+    fitness = max_fid * (1 + max_fid_times)
     return fitness.cpu().numpy()  # Convert once at the end
 
 
@@ -256,7 +184,10 @@ def loc_based_fitness_gpu(
     device = 'cuda' if T.cuda.is_available() else 'cpu'
 
     # Convert props to a CUDA tensor once (complex64 is faster)
-    props = T.tensor(props, dtype=T.complex64, device=device, requires_grad=False)
+    props = T.tensor(props,
+                     dtype=T.complex64,
+                     device=device,
+                     requires_grad=False)
 
     # Convert action sequences to a tensor
     action_sequences = T.tensor(action_sequences, dtype=T.int64, device=device)
@@ -266,7 +197,9 @@ def loc_based_fitness_gpu(
 
     # Initialize states tensor (batch dimension added)
     states = T.zeros(
-        (num_sequences, steps + 1, chain_length), dtype=T.complex64, device=device
+        (num_sequences, steps + 1, chain_length),
+        dtype=T.complex64, 
+        device=device
     )
     states[:, 0, 0] = 1.0  # Initial condition
 
@@ -275,23 +208,21 @@ def loc_based_fitness_gpu(
         states[:, i + 1, :] = T.bmm(
             props[action_sequences[:, i]], states[:, i, :].unsqueeze(-1)
         ).squeeze(-1)
-    
+
     # Compute fidelity
     fid = states[:, :, -1].abs() ** 2  # Take absolute squared of last column
 
-
     loc_evolution = T.sum(
-        T.real(states.abs() ** 2) * T.arange(1, chain_length + 1, device=device),
+        T.real(states.abs() ** 2) * T.arange(1, chain_length + 1,
+                                             device=device),
         dim=2
     )
 
-    max_time = T.argmax(fid, dim=1)
     speed = speed_fraction * 2 * chain_length / (chain_length - 1)
 
-
     # Compute rewards in parallel for all sequences and time steps
-    time_steps = T.arange(0, steps + 1, device=device).unsqueeze(0)  # Shape: (1, time_steps)
-    expected_loc = speed * dt * time_steps  # Expected localization at each time step
+    time_steps = T.arange(0, steps + 1, device=device).unsqueeze(0)
+    expected_loc = speed * dt * time_steps  # Expected localization
 
     # Compute the reward for all sequences and time steps
     rewards = 1 / T.abs(loc_evolution[:, :steps + 1] - expected_loc) ** 2
@@ -303,30 +234,44 @@ def loc_based_fitness_gpu(
     return fitness.cpu().numpy()  # Convert once at the end
 
 
+def fitness_func_constructor(fitness_str, props, tolerance, gamma):
 
+    """
+    Used to correctly assign the fitness function to be used in PyGAD
+    with the corresponding arguments.
 
-def action_selector(actions, n,b):
-    if actions == 'oaps':
-        acciones = one_field_actions(b, n)
-    elif actions == 'zhang':
-        acciones = zhang_actions(b, n)
+    Parameters:
+        - fitness (str): The type of fitness function to use ('reward_based',
+        'fidelity_based', or 'site_based').
+        - props (numpy.ndarray): The propagators associated with the actions.
+        - tolerance (float, optional): The tolerance level for reward-based
+        fitness functions.
+        - gamma (float, optional): The decay factor for reward-based
+        fitness functions.
+
+    Returns:
+        - function: A fitness function that can be used by PyGAD.
+    """
+    if fitness_str == 'reward_based':
+        fid_args = [props, tolerance, gamma]
+        fitness_func = fitness_func_constructor(reward_based_fitness_gpu,
+                                                fid_args)
+    elif fitness_str == 'fid_based':
+        fid_args = [props]
+        fitness_func = fitness_func_constructor(fidelity_fitness_gpu,
+                                                fid_args)
+    elif fitness_str == 'loc_based':
+        fid_args = [props]
+        fitness_func = fitness_func_constructor(loc_based_fitness_gpu,
+                                                fid_args)
     else:
-        raise ValueError("Invalid action set. Choose 'oaps' or 'zhang'.")
-    
-    return acciones
+        raise ValueError("Invalid fitness function. Choose 'reward_based', "
+                         "'loc_based' or 'fidelity'")
 
-def fitness_selector(fitness,props,dt,speed_fraction=None,tolerance=None,reward_decay=None):
-    
-    if fitness == 'reward_based':
-        fidelity_args = [props,tolerance, reward_decay]
-        fitness_func = fitness_func_constructor(reward_based_fitness_gpu, fidelity_args)
-    elif fitness == 'loc_based':
-        fidelity_args = [dt,props,speed_fraction]
-        fitness_func = fitness_func_constructor(loc_based_fitness_gpu, fidelity_args)
-    elif fitness == 'ipr_based':
-        fidelity_args = [props,tolerance, reward_decay]
-        fitness_func = fitness_func_constructor(ipr_based_fitness_gpu, fidelity_args)
-    else:
-        raise ValueError("Invalid fitness function. Choose 'reward_based', 'loc_based' or 'ipr_based'.")
-    return fitness_func
+    def fitness(vec):
+        return fitness_func(vec, *fid_args)
 
+    def fitness_wrapper(ga_instance, solution, solution_idx):
+        return fitness(solution)
+
+    return fitness_wrapper
