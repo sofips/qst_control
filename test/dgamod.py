@@ -1,15 +1,15 @@
 import numpy as np
+from shared import refined_cns, max_fidelity
 import torch as T
 import os
 import sys
 
 # Add repo root to sys.path
-repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
+repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
 sys.path.insert(0, repo_root)
 np.complex_ = np.complex128
 np.mat = np.asmatrix
 
-from shared import refined_cns, calc_max_fidelity
 
 def generation_print(ga):
 
@@ -39,8 +39,8 @@ def generation_func(ga, props, tol):
     """
 
     solution, solution_fitness, solution_idx = ga.best_solution()
-    print(solution)
-    fid, time = calc_max_fidelity(solution, props, return_time=True)
+
+    fid, time = max_fidelity(solution, props, return_time=True)
 
     print("Generation", ga.generations_completed)
     print(
@@ -95,6 +95,7 @@ def generate_states(initial_state, action_sequence, props):
 def reward_based_fitness_gpu(action_sequences, props, tolerance, gamma):
 
     device = "cuda" if T.cuda.is_available() else "cpu"
+
     # Convert props to a CUDA tensor once (complex64 is faster)
     props = T.tensor(props, dtype=T.complex64,
                      device=device,
@@ -237,14 +238,15 @@ def loc_based_fitness_gpu(
     return fitness.cpu().numpy()  # Convert once at the end
 
 
-def fitness_func_constructor(fitness_str, props, tolerance=None, gamma=None):
+def fitness_func_constructor(fitness_str, props, tolerance, gamma):
+
     """
     Used to correctly assign the fitness function to be used in PyGAD
     with the corresponding arguments.
 
     Parameters:
         - fitness (str): The type of fitness function to use ('reward_based',
-        'fid_based', or 'loc_based').
+        'fidelity_based', or 'site_based').
         - props (numpy.ndarray): The propagators associated with the actions.
         - tolerance (float, optional): The tolerance level for reward-based
         fitness functions.
@@ -256,18 +258,24 @@ def fitness_func_constructor(fitness_str, props, tolerance=None, gamma=None):
     """
     if fitness_str == 'reward_based':
         fid_args = [props, tolerance, gamma]
-        fitness_func = reward_based_fitness_gpu
+        fitness_func = fitness_func_constructor(reward_based_fitness_gpu,
+                                                fid_args)
     elif fitness_str == 'fid_based':
-        fid_args = [props, tolerance, gamma]
-        fitness_func = fidelity_fitness_gpu
+        fid_args = [props]
+        fitness_func = fitness_func_constructor(fidelity_fitness_gpu,
+                                                fid_args)
     elif fitness_str == 'loc_based':
-        fid_args = [props, tolerance, gamma]
-        fitness_func = loc_based_fitness_gpu
+        fid_args = [props]
+        fitness_func = fitness_func_constructor(loc_based_fitness_gpu,
+                                                fid_args)
     else:
         raise ValueError("Invalid fitness function. Choose 'reward_based', "
-                         "'loc_based' or 'fid_based'")
-    
-    fitness = lambda vec: fitness_func(vec,*fid_args)
+                         "'loc_based' or 'fidelity'")
 
+    def fitness(vec):
+        return fitness_func(vec, *fid_args)
 
-    return lambda ga_instance, solution, solution_idx: fitness(solution)
+    def fitness_wrapper(ga_instance, solution, solution_idx):
+        return fitness(solution)
+
+    return fitness_wrapper

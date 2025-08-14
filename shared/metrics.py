@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def max_fidelity(action_sequence, props, return_time=False):
+def calc_max_fidelity(action_sequence, props, return_time=False):
 
     """
     Calculate the fidelity resulting of a given pulse sequence. The state is
@@ -28,11 +28,9 @@ def max_fidelity(action_sequence, props, return_time=False):
     max_fid = 0.0
     imax = 0
     i = 0
-
     for action in action_sequence:
-
         i += 1
-        state = np.matmul(props[action, :, :], state)
+        state = np.matmul(props[action], state)
         fid = np.real(state[n - 1] * np.conjugate(state[n - 1]))
 
         if fid > max_fid:

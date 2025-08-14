@@ -1,13 +1,7 @@
 import numpy as np
-import os
-import sys
-from dgamod import  fitness_func_constructor, generation_func, \
-                    generation_func_constructor
-
-repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
-sys.path.insert(0, repo_root)
-
-from shared import action_selector, gen_props, calc_max_fidelity
+from dgamod import  fitness_selector, generation_func, \
+                    generation_func_constructor, fidelity
+from shared import action_selector, gen_props
 import pygad
 import sys
 import time
@@ -38,7 +32,6 @@ n_step = config.getint("system_parameters", "n_step")
 # system parameters (only n independent)
 dt = config.getfloat("system_parameters", "dt")
 b = config.getfloat("system_parameters", "b")
-coupling = config.getfloat("system_parameters", "coupling")
 action_set = config.get("system_parameters", "action_set")
 
 # genetic algorithm parameters (only n independent)
@@ -77,25 +70,22 @@ df = pd.DataFrame(columns=columns)
 
 
 for n in range(initial_n, final_n + 1, n_step):
-
-    # create config instance for each n
-    import copy
-    nconfig = copy.deepcopy(config)
-    nconfig.set("system_parameters", "n", str(n))
     
+    # create config instance for each n
+    nconfig = config.copy()
+    nconfig.set("system_parameters", "n", str(n))
+
     # generates actions and associated propagators
-    actions = action_selector(action_set, n, b, coupling)
-    props = gen_props(actions, dt)
+    actions = action_selector(action_set, n, b)
+    props = gen_props(actions, n, dt)
 
     # set ga parameters that are proportional to chain length
     num_genes_expr = config.get("ga_initialization", "num_genes")
     num_genes = int(eval(num_genes_expr, {"n": n}))
-    print(num_genes_expr, "->", num_genes)
     nconfig.set("ga_initialization", "num_genes", str(num_genes))
-    print('num_genes: ', num_genes)
+
     # mutation
-    mutation_num_genes_exp = config.get("mutation", "mutation_num_genes")
-    mutation_num_genes = int(eval(mutation_num_genes_exp, {"n": n}))
+    mutation_num_genes = config.get("mutation", "mutation_num_genes")
     nconfig.set("mutation", "mutation_num_genes", str(mutation_num_genes))
 
     gene_space = np.arange(0, len(actions), 1)
@@ -106,8 +96,14 @@ for n in range(initial_n, final_n + 1, n_step):
         generation_func, [props, fidelity_tolerance]
     )
 
-    fitness_func = fitness_func_constructor(
-        fitness_function, props, tolerance=fidelity_tolerance, gamma=reward_decay)
+    fidelity_args = [
+        props,
+        fidelity_tolerance,
+        reward_decay
+    ]
+
+    fitness_func = fitness_selector(
+        fitness_function, props, tolerance=fidelity_tolerance, reward_decay=reward_decay)
     mutation_type = "swap"
 
     config_filename = f"n{n}_config.ini"
@@ -152,8 +148,8 @@ for n in range(initial_n, final_n + 1, n_step):
 
         solution, sol_fitness, sol_idx = initial_instance.best_solution()
 
-        max_fidelity, time_max = calc_max_fidelity(solution, props, return_time=True)
-        nsolutions.append(solution)
+        max_fidelity, time_max = fidelity(solution, props, return_time=True)
+        nsolutions = nsolutions.append(solution)
         
         row = {
             "n": n,

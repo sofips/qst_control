@@ -136,12 +136,12 @@ def refined_cns(state, action_index, props):
     return next_state.ravel()
 
 
-def action_selector(actions, n, b):
+def action_selector(actions, n, b, coupling):
     if actions == 'oaps':
-        acciones = one_field_actions(b, n)
+        action_hamiltonians = one_field_actions(b, n, coupling)
     elif actions == 'zhang':
-        acciones = zhang_actions(b, n)
+        action_hamiltonians = zhang_actions(b, n, coupling)
     else:
         raise ValueError("Invalid action set. Choose 'oaps' or 'zhang'.")
 
-    return acciones
+    return action_hamiltonians
