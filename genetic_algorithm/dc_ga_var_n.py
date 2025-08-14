@@ -110,7 +110,7 @@ for n in range(initial_n, final_n + 1, n_step):
         fitness_function, props, tolerance=fidelity_tolerance, gamma=reward_decay)
     mutation_type = "swap"
 
-    config_filename = f"n{n}_config.ini"
+    config_filename = f"{main_dirname}/n{n}_config.ini"
 
     with open(config_filename, "w") as configfile:
         nconfig.write(configfile)

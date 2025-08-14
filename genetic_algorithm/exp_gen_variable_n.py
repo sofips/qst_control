@@ -14,7 +14,7 @@ config = configparser.ConfigParser()
 # system parameters
 
 initial_n = 8  # set initial n
-final_n = 12   # set final n
+final_n = 24   # set final n
 n_step = 4
 dt = 0.15      # length of temporal steps
 b = 100        # magnetic field strength
@@ -45,7 +45,7 @@ mutation_num_genes = 'n'
 
 # execution and results saving
 directory = sys.argv[1]
-n_samples = 2
+n_samples = 5
 
 
 config["system_parameters"] = {
@@ -94,6 +94,19 @@ script = "dc_ga_var_n.py"
 isExist = os.path.exists(directory)
 if not isExist:
     os.mkdir(directory)
+    # Add directory to .gitignore if not already present
+    gitignore_path = os.path.join(os.getcwd(), ".gitignore")
+    try:
+        if os.path.exists(gitignore_path):
+            with open(gitignore_path, "r+") as f:
+                lines = f.read().splitlines()
+                if directory not in lines:
+                    f.write(f"\n{directory}\n")
+        else:
+            with open(gitignore_path, "w") as f:
+                f.write(f"{directory}\n")
+    except Exception as e:
+        print(f"Warning: Could not update .gitignore: {e}")
 else:
     print("Warning: Directory already existed")
 
@@ -105,7 +118,7 @@ cmd = f'cp "{script_name}" "{directory}"'
 os.system(cmd)
 cmd = f'cp "{mod_name}" "{directory}"'
 os.system(cmd)
-config_name = directory + "/" + "ga" + directory + ".ini"
+config_name = directory + "/" + directory + ".ini"
 
 with open(config_name, "w") as configfile:
     config.write(configfile)
