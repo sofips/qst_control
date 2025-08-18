@@ -1,0 +1,16 @@
+# Core RL and ML libraries
+torch>=2.0.0
+numpy>=1.21.0
+gymnasium>=0.29.0
+
+# Scientific computing
+scipy>=1.7.0
+matplotlib>=3.5.0
+
+# For configuration files
+configparser
+
+# Optional: for better performance and additional features
+# tensorboard>=2.8.0  # For logging training progress
+# tqdm>=4.64.0        # For progress bars
+# seaborn>=0.11.0     # For better plotting

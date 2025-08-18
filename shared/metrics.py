@@ -79,6 +79,22 @@ def calc_ipr(state):
 
 
 def mean_site(state):
+    
+    """
+    Calculates the mean site index for a given quantum state vector.
+    The mean site is computed as the weighted sum of the probability amplitudes
+    at each site, where the weight is the (1-based) site index.
+    Parameters
+    - state (numpy.ndarray): A 1D numpy array representing the quantum state.
+    Returns:
+    - mean site (float): The mean site value, calculated as the sum over all
+    sites of the probability at each site multiplied by its (1-based) index.
+    
+    Notes
+    -----
+    The function assumes that `state` is a 1D array-like object containing
+    complex numbers.
+    """
 
     chain_length = np.shape(state)[0]
 

@@ -41,7 +41,7 @@ def zhang_actions(field_strength, chain_length, coupling):
 
     mag.append([field_strength for ii in range(chain_length)])
 
-    action_hamiltonians = np.zeros((16, chain_length, chain_length))
+    action_hamiltonians = np.zeros((16, chain_length, chain_length), dtype=complex)
 
     for idx, actions in enumerate(mag):
         diag_coupling = [coupling for _ in range(chain_length - 1)]
@@ -71,7 +71,7 @@ def one_field_actions(field_strength, chain_length, coupling):
 
     action_hamiltonians = np.zeros((chain_length + 1,
                                     chain_length,
-                                    chain_length))
+                                    chain_length), dtype=complex)
 
     for i in range(0, chain_length):
 
@@ -137,6 +137,19 @@ def refined_cns(state, action_index, props):
 
 
 def action_selector(actions, n, b, coupling):
+    """"Takes string determining action type and outputs the corresponding 
+    matrices for desired system
+    
+    Parameters:
+    - actions (str): The type of actions to generate ('oaps' or 'zhang').
+    - n (int): The number of sites in the chain.
+    - b (float): The strength of the external field.
+    - coupling (float): The coupling strength between nearest neighbors.
+
+    Returns:
+    - action_hamiltonians (numpy.ndarray): A 3D array of shape (n_actions, n, n)
+    representing the action Hamiltonians.
+    """
     if actions == 'oaps':
         action_hamiltonians = one_field_actions(b, n, coupling)
     elif actions == 'zhang':
