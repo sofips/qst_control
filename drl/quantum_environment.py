@@ -29,12 +29,17 @@ def to_real_vector(complex_vector):
     return real_vector
 
 
-def apply_propagator(state, propagator, real_input_state=True):
+def apply_propagator(state, propagator, real_input_state=True, random_phases=None):
 
     if real_input_state:
         state = to_complex_mat(state)
+
     next_state = propagator * state
 
+    if random_phases is not None:
+        for i in range(len(random_phases)):
+            next_state[i] *= np.exp(1j * random_phases[i])
+            
     next_state = to_real_vector(next_state)
     return next_state
 
@@ -158,6 +163,15 @@ class QuantumStateEnv(gym.Env):
                                                      "max_t_steps")
         self.current_time_step = 0
 
+        self.noise = config_instance.getboolean("noise_parameters", "noise")
+        
+        if self.noise:
+            self.noise_probability = config_instance.getfloat("noise_parameters", "noise_probability")
+            self.noise_amplitude = config_instance.getfloat("noise_parameters", "noise_amplitude")
+        else:
+            self.noise_probability = 0.0
+            self.noise_amplitude = 0.0
+
         # Access reward function
         reward_function = config_instance.get("learning_parameters",
                                               "reward_function")
@@ -204,7 +218,16 @@ class QuantumStateEnv(gym.Env):
         propagator = self.propagators[action]
 
         # Apply the action to the current state
-        self.state = apply_propagator(self.state, propagator)
+        if self.noise:
+            if np.random.rand() < self.noise_probability:
+                random_phases = np.random.uniform(-1, 1, size=self.chain_length)
+                random_phases = random_phases * self.noise_amplitude
+            else:
+                random_phases = None
+        else:
+            random_phases = None
+
+        self.state = apply_propagator(self.state, propagator, real_input_state=True, random_phases=random_phases)
 
         # Compute reward (for simplicity, we use fidelity as a reward)
         reward = self.reward_function(

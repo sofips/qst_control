@@ -27,7 +27,7 @@ def quick_evaluate(model_path, num_episodes=50):
     # Load default config
     config = configparser.ConfigParser()
     config['system_parameters'] = {
-        'chain_length': '8',
+        'chain_length': '16',
         'action_set': 'zhang',
         'n_actions': '16',
         'field_strength': '100',

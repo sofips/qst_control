@@ -19,7 +19,7 @@ def create_config():
     
     # System parameters
     config['system_parameters'] = {
-        'chain_length': '8',
+        'chain_length': '16',
         'action_set': 'zhang',  # or 'oaps'
         'n_actions': '16',
         'field_strength': '100',
@@ -28,11 +28,17 @@ def create_config():
         'max_t_steps': '80',
         'tolerance': '0.05'
     }
+
+    config["noise_parameters"] = {
+    "noise": 'True',
+    "noise_probability": '0.1',
+    "noise_amplitude": '0.1',
+}
     
     # Learning parameters
     config['learning_parameters'] = {
         'reward_function': 'original',  # or 'site evolution'
-        'gamma': '0.95'
+        'gamma': '1'
     }
     
     return config
@@ -65,17 +71,17 @@ def train_dqn(num_episodes=1000, config_path=None, save_dir='./dqn_results'):
     
     # DQN configuration
     dqn_config = {
-        'learning_rate': 1e-2,
+        'learning_rate': 1e-3,
         'gamma': 0.99,
         'epsilon_start': 1.0,
         'epsilon_end': 0.01,
         'epsilon_decay': 0.995,
-        'target_update_freq': 1000,
+        'target_update_freq': 200,
         'batch_size': 32,
         'buffer_size': 100000,
         'hidden_dims': [1024, 1024],
         'use_dueling': True,  # Use dueling architecture
-        'use_prioritized_replay': False,  # Can enable for better performance
+        'use_prioritized_replay': True,  # Can enable for better performance
         'use_double_dqn': True,  # Use double DQN
         'device': 'cuda' if torch.cuda.is_available() else 'cpu'
     }
@@ -192,7 +198,7 @@ if __name__ == "__main__":
     
     # Train the agent
     agent, stats = train_dqn(
-        num_episodes=2000,
+        num_episodes=10000,
         save_dir='./dqn_quantum_results'
     )
     

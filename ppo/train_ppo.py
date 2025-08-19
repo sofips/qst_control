@@ -20,20 +20,20 @@ def create_config():
 
     # System parameters
     config['system_parameters'] = {
-        'chain_length': '8',
+        'chain_length': '16',
         'action_set': 'zhang',  # or 'oaps'
         'n_actions': '16',
         'field_strength': '100',
         'coupling': '1.0',
         'tstep_length': '0.15',
-        'max_t_steps': '40',
+        'max_t_steps': '80',
         'tolerance': '0.05'
     }
 
     # Learning parameters
     config['learning_parameters'] = {
-        'reward_function': 'original',  # or 'site evolution'
-        'gamma': '0.95'
+        'reward_function': 'site evolution',  # or 'site evolution'
+        'gamma': '1'
     }
 
     return config
@@ -120,19 +120,13 @@ def train_ppo(num_episodes=2000, config_path=None, save_dir='./ppo_results'):
             recent_rewards = [s['episode_reward'] for s in episode_stats[-100:]]
             recent_fidelities = [s['max_fidelity'] for s in episode_stats[-100:]]
             recent_lengths = [s['episode_length'] for s in episode_stats[-100:]]
-            recent_entropies = [s['entropy'] for s in episode_stats[-100:]]
-            recent_max_probs = [s['max_prob'] for s in episode_stats[-100:]]
             avg_reward = np.mean(recent_rewards)
             avg_fidelity = np.mean(recent_fidelities)
             avg_length = np.mean(recent_lengths)
-            avg_entropy = np.mean(recent_entropies)
-            avg_max_prob = np.mean(recent_max_probs)
             print(f"Episode {episode + 1}/{num_episodes}")
             print(f"  Recent avg reward: {avg_reward:.2f}")
             print(f"  Recent avg max fidelity: {avg_fidelity:.4f}")
             print(f"  Recent avg episode length: {avg_length:.1f}")
-            print(f"  Recent avg entropy: {avg_entropy:.4f}")
-            print(f"  Recent avg max prob: {avg_max_prob:.4f}")
             print(f"  Memory size: {len(agent.memory)}")
             
             # Save best model

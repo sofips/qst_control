@@ -137,19 +137,18 @@ class DuelingDQNNetwork(nn.Module):
         
         Args:
             state (torch.Tensor): Input state tensor
-            
+        
         Returns:
             torch.Tensor: Q-values for each action
         """
+        # Ensure state is on the same device as the model
+        state = state.to(next(self.parameters()).device)
         features = self.feature_layers(state)
-        
         value = self.value_stream(features)
         advantage = self.advantage_stream(features)
-        
         # Combine value and advantage streams
         # Q(s,a) = V(s) + A(s,a) - mean(A(s,a'))
         q_values = value + advantage - advantage.mean(dim=1, keepdim=True)
-        
         return q_values
     
     def get_action(self, state, epsilon=0.0):
@@ -165,10 +164,10 @@ class DuelingDQNNetwork(nn.Module):
         """
         if isinstance(state, np.ndarray):
             state = torch.FloatTensor(state).unsqueeze(0)
-        
+        # Ensure state is on the same device as the model
+        state = state.to(next(self.parameters()).device)
         if np.random.random() < epsilon:
             return np.random.randint(0, self.action_dim)
-        
         with torch.no_grad():
             q_values = self.forward(state)
             return q_values.argmax().item()
