@@ -104,8 +104,8 @@ class PPOMemory:
         Yields:
             dict: Mini-batch of data
         """
-        # Convert to tensors
-        states = torch.FloatTensor(self.states)
+        # Convert to tensors (fix: list to numpy array first)
+        states = torch.FloatTensor(np.array(self.states))
         actions = torch.LongTensor(self.actions)
         log_probs = torch.FloatTensor(self.log_probs)
         advantages = torch.FloatTensor(self.advantages)
