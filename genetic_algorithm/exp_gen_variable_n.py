@@ -124,7 +124,7 @@ with open(config_name, "w") as configfile:
     config.write(configfile)
 
 script_name = directory + "/" + script
-config_name = "ga" + directory + ".ini"
+config_name = directory + ".ini"
 
 cmd = f'python3 "{script_name}" "{config_name}"'
 os.system(cmd)
