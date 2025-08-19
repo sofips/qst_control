@@ -8,3 +8,7 @@ ppo/ppo_quantum_results/best_model.pth
 ppo/ppo_quantum_results/config.ini
 drl/dqn_quantum_results/best_model.pth
 drl/dqn_quantum_results/config.ini
+__pycache__/
+shared/__pycache__/
+ppo/__pycache__/
+drl/__pycache__/
