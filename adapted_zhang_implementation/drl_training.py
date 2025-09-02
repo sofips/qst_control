@@ -53,6 +53,7 @@ def qst_training(config_instance, optuna_trial=None, progress_bar=True):
     ])
 
 
+    tolerance = config_instance.getfloat("system_parameters", "tolerance")
     success_action_sequences = []  # store successful success_action_seq
     stp = 0  # initialize TOTAL step counter
 
@@ -206,7 +207,6 @@ def qst_training(config_instance, optuna_trial=None, progress_bar=True):
     logdirname = dirname + "/logs/"
     tf.summary.FileWriter(logdirname, RL.sess.graph)
 
-    tolerance = config_instance.getfloat("system_parameters", "tolerance")
 
     # store success rate as metric
     soft_success_training_rate = 0
