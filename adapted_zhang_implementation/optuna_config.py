@@ -1,4 +1,4 @@
-#####################################################################
+#####################o###############################################
 # Generate configuration files for RL experiments with ODC
 #####################################################################
 
@@ -31,10 +31,10 @@ if sys.argv[1] == 'interactive':
 
 else:
     new_experiment =  True  
-    experiment_alias = 'n8_test' 
+    experiment_alias = 'n16_025noise_optuning'
     dirname = 'opt_for_' + experiment_alias
     optuna_metric = "average_val_fidelity" 
-    experiment_description = 'Optimization of step learning int, and fc1_dims for n=8 chain with noise 0.5, original reward and actions' 
+    experiment_description = 'optimization of fc1_dims, lr and gamma value for original actions and reward in chain of size 10' 
     optuna_metric = "average_val_fidelity"  
 
 
@@ -46,13 +46,12 @@ optimization_system_parameters = {
 }
 
 optimization_learning_parameters = {
-    ("epsilon_increment"): [0.00001, 0.1, True, "float"],
-    ("epsilon"): [0.5, 0.99, True, "float"],
-    ("fc1_dims"): [128, 4096, False, "int"],
+    ("gamma"): [0.95, 1., False, "float"],
+    ("fc1_dims"): [1024, 8192, False, "int"],
     ("learning_rate"): [0.00001, 0.01, True, "float"],
 }
 
-ntrials = 100
+ntrials = 50
 
 print("Running optuna optimization for the following learning parameters:")
 for param, values in optimization_learning_parameters.items():
@@ -66,7 +65,7 @@ for param, values in optimization_system_parameters.items():
 #                         SYSTEM PARAMETERS                       #
 # -----------------------------------------------------------------#
 
-chain_length = 8
+chain_length = 16
 tstep_length = 0.15
 tolerance = 0.05
 max_t_steps = 5*chain_length
@@ -85,11 +84,11 @@ noise_amplitude = 0.25
 # -----------------------------------------------------------------#
 prioritized = True
 number_of_features = 2 * chain_length
-number_of_episodes = 50000
+number_of_episodes = 30000
 step_learning_interval = 20
 
-learning_rate = 0.002
-gamma = 0.95
+learning_rate = None
+gamma = None
 
 # memory
 replace_target_iter = 200
@@ -97,16 +96,16 @@ memory_size = 40000
 batch_size = 32
 
 # epsilon
-epsilon = None
-epsilon_increment = None
+epsilon = 0.99 
+epsilon_increment = 0.0001
 
 # dqn
 fc1_dims = 0
 fc2_dims = fc1_dims//3
 dropout = 0.0 #not yet implemented in DQNPrioritizedReplay
 
-reward_function = "site evolution"     # "original" , "full reward", "ipr", "site evolution"
-action_set = "oaps"   # "zhang", "oaps" (action per site)
+reward_function = "original"     # "original" , "full reward", "ipr", "site evolution"
+action_set = "zhang"   # "zhang", "oaps" (action per site)
 n_actions = 16 if action_set == "zhang" else chain_length + 1  if action_set == "oaps" else 0
 
 # ------------------------------------------------------------------------------
