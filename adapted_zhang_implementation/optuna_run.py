@@ -102,7 +102,7 @@ def objective(trial):
 
     selected_metric = config_instance.get("optuna_optimization", "optuna_metric")
 
-    value = qst_validation(session, config_instance=config_instance, validation_metric=selected_metric, validation_episodes=100)
+    value = qst_validation(config_instance=config_instance, validation_metric=selected_metric, validation_episodes=100)
 
     
     return value  # Return the average Q-value of the last 100 episodes
