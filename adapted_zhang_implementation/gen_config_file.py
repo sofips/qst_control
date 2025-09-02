@@ -9,10 +9,10 @@ import shutil
 config = configparser.ConfigParser()
 
 # -----------------------------------------------------------------#
-#new_experiment = input("New experiment? (y/n): ")
-#new_experiment = True if new_experiment == "y" else False if new_experiment == "n" else sys.exit("Error: y o n")
-#experiment_alias = input("Experiment alias/name: ")
-#experiment_description = input('Notes / Comments: ')
+# new_experiment = input("New experiment? (y/n): ")
+# new_experiment = True if new_experiment == "y" else False if new_experiment == "n" else sys.exit("Error: y o n")
+# experiment_alias = input("Experiment alias/name: ")
+# experiment_description = input('Notes / Comments: ')
 
 experiment_alias = sys.argv[1]  #'n10_noise10_010'
 experiment_description = 'n10 og parameters, noise baja probabilidad. Test'
@@ -29,7 +29,7 @@ run = False
 # -----------------------------------------------------------------#
 
 
-chain_length = 10
+chain_length = 7
 tstep_length = 0.15
 tolerance = 0.05
 max_t_steps = 5*chain_length
@@ -48,7 +48,7 @@ noise_amplitude = 0.1
 # -----------------------------------------------------------------#
 prioritized = True
 number_of_features = 2 * chain_length
-number_of_episodes = 30000
+number_of_episodes = 8000
 step_learning_interval = 5
 
 learning_rate = 0.005
