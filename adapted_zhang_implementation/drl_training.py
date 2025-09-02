@@ -20,7 +20,7 @@ def qst_training(config_instance, optuna_trial=None, progress_bar=True):
     Results and metrics are saved to disk for further analysis.
     Args:
         config_instance: Configuration object containing parameters for the environment, agent, and training process.
-        optuna_trial (optional): Boolean indicating if the training is being done inside an optuna optimization. Activates 
+        optuna_trial (optional): Boolean indicating if the training is being done inside an optuna optimization. Activates
         optuna specific features like trial reporting and pruning.
     Returns:
         RL: The trained DQNPrioritizedReplay agent session.
@@ -52,7 +52,7 @@ def qst_training(config_instance, optuna_trial=None, progress_bar=True):
         "final_fidelity", "time_final_fidelity", "epsilon"
     ])
 
-    
+
     success_action_sequences = []  # store successful success_action_seq
     stp = 0  # initialize TOTAL step counter
 
@@ -83,7 +83,7 @@ def qst_training(config_instance, optuna_trial=None, progress_bar=True):
 
             RL.store_transition(
                 observation, action, reward, observation_
-            )  
+            )
 
             Q += reward  # total reward
             if (stp > 500) and (stp % 5 == 0):
@@ -98,15 +98,15 @@ def qst_training(config_instance, optuna_trial=None, progress_bar=True):
 
             stp += 1
             i += 1
-        
+
         if episode % 1000 == 0 and episode > 5000:
-            average_max_fid = np.mean(results_df["max_fidelity"][-1000:]) 
+            average_max_fid = np.mean(results_df["max_fidelity"][-1000:])
             print(f"Episode {episode}, Average Max Fidelity: {average_max_fid:.4f}")
             if optuna_trial is not None:
                 optuna_trial.report(average_max_fid, episode)
                 if optuna_trial.should_prune():
                     print(f"Trial {optuna_trial.number} pruned at episode {episode}.")
-                    
+
                     t2 = time.time()  # end timer
 
                     # Save the current state of the RL agent
@@ -159,7 +159,7 @@ def qst_training(config_instance, optuna_trial=None, progress_bar=True):
             print("Best fidelity: ", fid_max)
             saver = tf.train.Saver()
             saver.save(RL.sess, dirname + "/best_model/model.ckpt")
-            
+
         if fid_max > min(best_fidelities):
             idx = np.argmin(best_fidelities)
             best_fidelities[idx] = fid_max
@@ -170,13 +170,13 @@ def qst_training(config_instance, optuna_trial=None, progress_bar=True):
         results_df = pd.concat([
             results_df,
             pd.DataFrame([{
-            "episode": episode,
-            "Qvalue": Q,
-            "max_fidelity": fid_max,
-            "time_max_fidelity": t_fid_max,
-            "final_fidelity": fidelity,
-            "time_final_fidelity": i,
-            "epsilon": RL.epsilon
+                "episode": episode,
+                "Qvalue": Q,
+                "max_fidelity": fid_max,
+                "time_max_fidelity": t_fid_max,
+                "final_fidelity": fidelity,
+                "time_final_fidelity": i,
+                "epsilon": RL.epsilon
             }])
         ], ignore_index=True)
 
@@ -191,16 +191,16 @@ def qst_training(config_instance, optuna_trial=None, progress_bar=True):
     )
 
     saver.save(RL.sess, dirname + "/final_model/model.ckpt")
-    
+
     # Save action sequences and fidelities using numpy
-    np.savetxt(dirname + "/success_action_sequences.txt", 
-               np.array(success_action_sequences, dtype=object), 
+    np.savetxt(dirname + "/success_action_sequences.txt",
+               np.array(success_action_sequences, dtype=object),
                fmt="%s")
-    np.savetxt(dirname + "/best_action_sequences.txt", 
-               np.array(best_action_sequences, dtype=object), 
+    np.savetxt(dirname + "/best_action_sequences.txt",
+               np.array(best_action_sequences, dtype=object),
                fmt="%s")
-    np.savetxt(dirname + "/best_fidelities.txt", 
-               best_fidelities, 
+    np.savetxt(dirname + "/best_fidelities.txt",
+               best_fidelities,
                fmt="%.8f")
 
     logdirname = dirname + "/logs/"
@@ -240,71 +240,96 @@ def qst_training(config_instance, optuna_trial=None, progress_bar=True):
     return RL
 
 
-def qst_validation(session, config_instance, validation_metric='average_max_fidelity', validation_episodes=100):
-
+def qst_validation(
+        config_instance,
+        validation_metric='average_val_fidelity',
+        validation_episodes=1000
+    ):
     experiment_name = config_instance.get("experiment", "experiment_alias")
     dirname = experiment_name
 
+    dir = dirname + '/best_model'
 
-    env = State(config_instance=config_instance)  # create environment
+    tf.reset_default_graph()
 
-    results_df = pd.DataFrame(columns=[
-        "episode", "Qvalue", "max_fidelity", "time_max_fidelity",
-        "final_fidelity", "time_final_fidelity", "epsilon"
-    ]) 
-
-    max_t_steps = config_instance.getint(
-        "system_parameters", "max_t_steps")
-
-    for episode in range(validation_episodes):
-        observation = env.reset()  # reset environment, get initial observation
-        Q = 0
-        fid_max = 0
-        t_fid_max = 0
-
-        for i in range(max_t_steps):  # episode maximum length
-            action = session.choose_action(observation)
-
-            observation_, reward, fidelity = env.step(action)
-
-            Q += reward  # total reward
-
-            if fidelity > fid_max:
-                fid_max = fidelity
-                t_fid_max = i
-
-            observation = observation_  # update current state
-        
-        
-
-        results_df = pd.concat([
-            results_df,
-            pd.DataFrame([{
-                "episode": episode,
-                "Qvalue": Q,
-                "max_fidelity": fid_max,
-                "time_max_fidelity": t_fid_max,
-                "final_fidelity": fidelity,
-                "time_final_fidelity": i,
-                "epsilon": session.epsilon
-            }])
-        ], ignore_index=True)
-
-    results_df.to_csv(
-        dirname + "/validation_results.txt",
-        sep=" ",
-        float_format="%.8f",
-        index=False,
-        header=True
-    )
+    # Start a new TensorFlow session and restore variables from checkpoint
     
-    metrics = {
-        "general_val_fidelity": np.max(results_df["max_fidelity"]),
-        "average_val_fidelity": np.mean(results_df["max_fidelity"]),
-        "average_time_max_fidelity": np.mean(results_df["time_max_fidelity"]),
-        "average_QValue": np.mean(results_df["Qvalue"]),
-        "validation_episodes": validation_episodes,
-    }
+    with tf.Session() as sess:
+        RL_val = DQNPrioritizedReplay(
+            config_instance=config_instance,
+            sess=sess
+        )  # create RL agent with restored session
+
+        saver = tf.train.Saver()
+        checkpoint_path = f'{dir}/model.ckpt'
+        if not tf.train.checkpoint_exists(checkpoint_path):
+            raise FileNotFoundError(f"Checkpoint not found at {checkpoint_path}")
+        saver.restore(sess, checkpoint_path)
+
+        env = State(config_instance=config_instance)  # create environment
+
+        results_df = pd.DataFrame(columns=[
+            "episode", "Qvalue", "max_fidelity", "time_max_fidelity",
+            "final_fidelity", "time_final_fidelity", "epsilon"
+        ])
+
+        max_t_steps = config_instance.getint(
+            "system_parameters", "max_t_steps"
+        )
+
+        for episode in range(validation_episodes):
+            # reset environment, get initial observation
+            observation = env.reset()
+            Q = 0
+            fid_max = 0
+            t_fid_max = 0
+
+            for i in range(max_t_steps):  # episode maximum length
+                
+                action = RL_val.choose_action(observation, eval=True)
+
+                observation_, reward, fidelity = env.step(action)
+
+                observation = observation_.copy()  # update current state
+                Q += reward  # total reward
+
+                if fidelity > fid_max:
+                    fid_max = fidelity
+                    t_fid_max = i
+                    
+            results_df = pd.concat([
+                results_df,
+                pd.DataFrame([{
+                    "episode": episode,
+                    "Qvalue": Q,
+                    "max_fidelity": fid_max,
+                    "time_max_fidelity": t_fid_max,
+                    "final_fidelity": fidelity,
+                    "time_final_fidelity": i,
+                    "epsilon": RL_val.epsilon
+                }])
+            ], ignore_index=True)
+
+        results_df.to_csv(
+            dirname + "/validation_results.txt",
+            sep=" ",
+            float_format="%.8f",
+            index=False,
+            header=True
+        )
+
+        metrics = {
+            "general_val_fidelity": np.max(results_df["max_fidelity"]),
+            "average_val_fidelity": np.mean(results_df["max_fidelity"]),
+            "average_time_max_fidelity": np.mean(
+                results_df["time_max_fidelity"]
+            ),
+            "average_QValue": np.mean(results_df["Qvalue"]),
+            "validation_episodes": validation_episodes,
+        }
+
+    sess.close()
+    tf.reset_default_graph()
 
     # Save the dictionary to a file
     metrics_file = dirname + "/validation_metrics.pkl"

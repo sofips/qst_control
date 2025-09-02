@@ -218,7 +218,7 @@ class DQNPrioritizedReplay:
 
             with tf.variable_scope("l15", reuse=self.rus):
                 w15 = tf.get_variable(
-                    "w15
+                    "w15",
                     [n_l1, n_l2],
                     initializer=w_initializer,
                     collections=c_names,
@@ -317,9 +317,9 @@ class DQNPrioritizedReplay:
                 index = np.argmin(self.top_memory[:, self.n_features + 1])
                 self.top_memory[index, :] = transition
 
-    def choose_action(self, observation):
+    def choose_action(self, observation, eval=False):
         observation = observation[np.newaxis, :]
-        if np.random.uniform() < self.epsilon:
+        if eval or np.random.uniform() < self.epsilon:
             actions_value = self.sess.run(self.q_eval, feed_dict={self.s: observation})
             action = np.argmax(actions_value)
         else:

@@ -14,8 +14,8 @@ config = configparser.ConfigParser()
 #experiment_alias = input("Experiment alias/name: ")
 #experiment_description = input('Notes / Comments: ')
 
-experiment_alias = 'n10_og_005'
-experiment_description = 'n10 og parameters'
+experiment_alias = sys.argv[1]  #'n10_noise10_010'
+experiment_description = 'n10 og parameters, noise baja probabilidad. Test'
 
 #run = input("Run experiment (y/n): ")
 #run = True if run == "y" else False if run == "n" else sys.exit("Error: y o n")
@@ -39,20 +39,20 @@ coupling = 1
 # -----------------------------------------------------------------#
 #                    NOISE PARAMETERS                              #
 # -----------------------------------------------------------------#
-noise = False
-noise_probability = 0.
-noise_amplitude = 0.
+noise = True
+noise_probability = 0.1
+noise_amplitude = 0.1
 
 # -----------------------------------------------------------------#
 #                    LEARNING HYPERPARAMETERS                     #
 # -----------------------------------------------------------------#
 prioritized = True
 number_of_features = 2 * chain_length
-number_of_episodes = 50000
+number_of_episodes = 30000
 step_learning_interval = 5
 
-learning_rate = 0.01
-gamma = 0.95 # 1 for no decay
+learning_rate = 0.005
+gamma = 1 # 1 for no decay
 
 # memory
 replace_target_iter = 200
@@ -64,7 +64,7 @@ epsilon = 0.99
 epsilon_increment = 0.0001
 
 # dqn
-fc1_dims = 120
+fc1_dims = 2048
 fc2_dims = fc1_dims//3
 dropout = 0.0 #not yet implemented in DQNPrioritizedReplay
 

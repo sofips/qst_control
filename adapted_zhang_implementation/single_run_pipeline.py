@@ -23,7 +23,7 @@ os.mkdir(dirname) if not os.path.exists(dirname) else None
 
 print(f"Using configuration from {config_file}")
 
-trained_agent = qst_training(config_instance=config_instance)
-validate_fidelity = qst_validation(trained_agent, config_instance=config_instance)
+trained_agent = qst_training(config_instance=config_instance, progress_bar=False)
+validate_fidelity = qst_validation(config_instance=config_instance)
 
 print(f"Validation fidelity: {validate_fidelity}")
