@@ -267,9 +267,8 @@ def fitness_func_constructor(fitness_str, props, tolerance=None, gamma=None):
         fitness_func = loc_based_fitness_gpu
     else:
         raise ValueError("Invalid fitness function. Choose 'reward_based', "
-                        "'loc_based' or 'fid_based'")
+                         "'loc_based' or 'fid_based'")
 
     fitness = lambda vec: fitness_func(vec, *fid_args)
-
 
     return lambda ga_instance, solution, solution_idx: fitness(solution)

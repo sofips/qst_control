@@ -1,4 +1,3 @@
-import numpy as np
 import os
 import configparser
 import sys
@@ -73,15 +72,15 @@ with mlflow.start_run(run_name=run_name, nested=False):
     df.reset_index(drop=True, inplace=True)
 
     nbins = 100
-    
+
     metrics = list(df.columns)
-    
+
     # Crear una columna de binning basada en el índice (cada 100 filas)
     df["binned_step"] = df.index // nbins
 
     # Agrupar por binned_step y calcular el promedio de cada bin
     binned_df = df.groupby("binned_step").mean().reset_index()
-    
+
     for index, row in tqdm(binned_df.iterrows(), total=len(binned_df),
                            desc="Logging binned metrics"):
         for metric in metrics:
@@ -102,7 +101,7 @@ with mlflow.start_run(run_name=run_name, nested=False):
     if 'validation_metrics.pkl' in files:
         with open(validation_metrics_file, "rb") as f:
             validation_metrics = pickle.load(f)
-        
+
         # Log the validation metrics
         for key, value in validation_metrics.items():
             mlflow.log_metric(f"{key}", value)
