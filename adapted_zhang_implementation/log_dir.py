@@ -29,7 +29,8 @@ config = configparser.ConfigParser()
 config.read(os.path.join(directory_name, config_file))
 
 # Convert the configuration to a dictionary
-parameters = {section: dict(config.items(section)) for section in config.sections()}
+parameters = {section: dict(config.items(section)) for
+              section in config.sections()}
 
 experiment_tags = parameters["tags"]
 system_parameters = parameters["system_parameters"]
@@ -39,7 +40,8 @@ learning_parameters = parameters["learning_parameters"]
 experiment_name = config.get("experiment", "experiment_alias")
 tracking_uri = "http://localhost:5005"
 client = MlflowClient(tracking_uri=tracking_uri)
-experiment = client.create_experiment(name=experiment_name, tags=experiment_tags)
+experiment = client.create_experiment(name=experiment_name,
+                                      tags=experiment_tags)
 print(f"Experiment created: {experiment_name}")
 now = datetime.datetime.now()
 date_str = now.strftime("%Y%m%d_%H%M%S")
@@ -80,7 +82,8 @@ with mlflow.start_run(run_name=run_name, nested=False):
     # Agrupar por binned_step y calcular el promedio de cada bin
     binned_df = df.groupby("binned_step").mean().reset_index()
     
-    for index, row in tqdm(binned_df.iterrows(), total=len(binned_df), desc="Logging binned metrics"):
+    for index, row in tqdm(binned_df.iterrows(), total=len(binned_df),
+                           desc="Logging binned metrics"):
         for metric in metrics:
             mlflow.log_metric(f"binned_{metric}", row[f"{metric}"], step=index)
 
@@ -93,9 +96,10 @@ with mlflow.start_run(run_name=run_name, nested=False):
     for key, value in loaded_metrics.items():
         mlflow.log_metric(key, value)
 
-    validation_metrics_file = os.path.join(directory_name, 'validation_metrics.pkl')
+    validation_metrics_file = os.path.join(directory_name,
+                                           'validation_metrics.pkl')
 
-    if validation_metrics_file in files:
+    if 'validation_metrics.pkl' in files:
         with open(validation_metrics_file, "rb") as f:
             validation_metrics = pickle.load(f)
         
