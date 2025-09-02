@@ -1,15 +1,17 @@
+import os
 import numpy as np
 import torch as T
-import os
 import sys
 
 # Add repo root to sys.path
 repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
 sys.path.insert(0, repo_root)
+from shared import refined_cns, calc_max_fidelity
+
+
 np.complex_ = np.complex128
 np.mat = np.asmatrix
 
-from shared import refined_cns, calc_max_fidelity
 
 def generation_print(ga):
 
@@ -25,7 +27,7 @@ def generation_func(ga, props, tol):
     Prints relevant information on the best solution,
     and determines whether to stop the algorithm based on fidelity.
 
-    
+
     Parameters:
         - ga (GeneticAlgorithm): An instance of the genetic algorithm.
         - props (dict): Propagators being used to calculate fidelity
@@ -201,7 +203,7 @@ def loc_based_fitness_gpu(
     # Initialize states tensor (batch dimension added)
     states = T.zeros(
         (num_sequences, steps + 1, chain_length),
-        dtype=T.complex64, 
+        dtype=T.complex64,
         device=device
     )
     states[:, 0, 0] = 1.0  # Initial condition
@@ -265,9 +267,9 @@ def fitness_func_constructor(fitness_str, props, tolerance=None, gamma=None):
         fitness_func = loc_based_fitness_gpu
     else:
         raise ValueError("Invalid fitness function. Choose 'reward_based', "
-                         "'loc_based' or 'fid_based'")
-    
-    fitness = lambda vec: fitness_func(vec,*fid_args)
+                        "'loc_based' or 'fid_based'")
+
+    fitness = lambda vec: fitness_func(vec, *fid_args)
 
 
     return lambda ga_instance, solution, solution_idx: fitness(solution)
