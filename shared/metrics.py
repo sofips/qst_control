@@ -43,20 +43,27 @@ def calc_max_fidelity(action_sequence, props, return_time=False):
     return max_fid
 
 
+# def state_fidelity(state):
+#     """
+#     Calculate the fidelity of a definite quantum state.
+#     Parameters:
+#     - state (numpy.ndarray): A 1D numpy array representing the quantum state.
+#     Returns:
+#     - float: The fidelity of the state, which is the square of the norm of the
+#     last element of the state vector.
+#     """
+
+#     n = np.shape(state)[0]
+#     fid = np.real(state[n - 1] * np.conjugate(state[n - 1]))
+
+#     return fid[0][0]
+
+# state fidelity and mean site take complex state as input
+# and return a real number
+
 def state_fidelity(state):
-    """
-    Calculate the fidelity of a definite quantum state.
-    Parameters:
-    - state (numpy.ndarray): A 1D numpy array representing the quantum state.
-    Returns:
-    - float: The fidelity of the state, which is the square of the norm of the
-    last element of the state vector.
-    """
 
-    n = np.shape(state)[0]
-    fid = np.real(state[n - 1] * np.conjugate(state[n - 1]))
-
-    return fid
+    return np.asarray((abs(state[-1]) ** 2)[0, 0])  # calculate fidelity
 
 
 def calc_ipr(state):
@@ -105,3 +112,4 @@ def mean_site(state):
         ])
     )
     return ms
+

@@ -5,7 +5,7 @@ from scipy.linalg import expm
 def zhang_actions(field_strength, chain_length, coupling):
     """
     Adapted from Zhang et. al work. Generates a set of action matrices
-    corresponding to the actions described in the paper.
+    corresponding to the actions described in the paper. 
 
     Parameters:
     field_strength (float): The maximum value of the field
@@ -41,8 +41,7 @@ def zhang_actions(field_strength, chain_length, coupling):
 
     mag.append([field_strength for ii in range(chain_length)])
 
-    action_hamiltonians = np.zeros((16, chain_length, chain_length),
-                                   dtype=complex)
+    action_hamiltonians = np.zeros((16, chain_length, chain_length), dtype=complex)
 
     for idx, actions in enumerate(mag):
         diag_coupling = [coupling for _ in range(chain_length - 1)]
@@ -57,7 +56,7 @@ def zhang_actions(field_strength, chain_length, coupling):
 
 def one_field_actions(field_strength, chain_length, coupling):
     """
-    Generates a set of action matrices corresponding to fields acting
+    Generates a set of action matrices corresponding to fields acting 
     on every individual site.
 
     Parameters:
@@ -138,9 +137,9 @@ def refined_cns(state, action_index, props):
 
 
 def action_selector(actions, n, b, coupling):
-    """"Takes string determining action type and outputs the corresponding
+    """"Takes string determining action type and outputs the corresponding 
     matrices for desired system
-
+    
     Parameters:
     - actions (str): The type of actions to generate ('oaps' or 'zhang').
     - n (int): The number of sites in the chain.
@@ -148,7 +147,7 @@ def action_selector(actions, n, b, coupling):
     - coupling (float): The coupling strength between nearest neighbors.
 
     Returns:
-    - action_hamiltonians (numpy.ndarray): array of shape (n_actions, n, n)
+    - action_hamiltonians (numpy.ndarray): A 3D array of shape (n_actions, n, n)
     representing the action Hamiltonians.
     """
     if actions == 'oaps':
