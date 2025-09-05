@@ -41,7 +41,8 @@ def zhang_actions(field_strength, chain_length, coupling):
 
     mag.append([field_strength for ii in range(chain_length)])
 
-    action_hamiltonians = np.zeros((16, chain_length, chain_length), dtype=complex)
+    action_hamiltonians = np.zeros((16,
+                                    chain_length, chain_length), dtype=complex)
 
     for idx, actions in enumerate(mag):
         diag_coupling = [coupling for _ in range(chain_length - 1)]
@@ -147,7 +148,7 @@ def action_selector(actions, n, b, coupling):
     - coupling (float): The coupling strength between nearest neighbors.
 
     Returns:
-    - action_hamiltonians (numpy.ndarray): A 3D array of shape (n_actions, n, n)
+    - action_hamiltonians (numpy.ndarray): 3D array of shape (n_actions, n, n)
     representing the action Hamiltonians.
     """
     if actions == 'oaps':
