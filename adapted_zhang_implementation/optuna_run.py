@@ -10,15 +10,14 @@ import pandas as pd
 import pickle
 import tensorflow.compat.v1 as tf
 import sys
-from drl_training import *
-from concurrent.futures import ThreadPoolExecutor
+from drl_training import qst_training, qst_validation
+import multiprocessing
 
 tf.disable_v2_behavior()
 optuna.logging.set_verbosity(optuna.logging.ERROR)
 
-
 new_config_file = True
-config_file = sys.argv[1] #input("Enter the config file name (default: config.ini): ") or "config.ini"
+config_file = sys.argv[1]  # input("Enter the config file name (default: config.ini): ") or "config.ini"
 
 if new_config_file:
     os.system(f'python3 optuna_config.py {config_file}')
@@ -29,13 +28,10 @@ print(f"Using configuration from {config_file}")
 config_instance = configparser.ConfigParser()
 config_instance.read(config_file + '.ini')
 
-
 experiment_name = config_instance.get("experiment", "experiment_alias")
-dirname = config_instance.get("experiment","directory_name")
-
+dirname = config_instance.get("experiment", "directory_name")
 
 def objective(trial):
-    
     global ti
     global config_instance
     global dirname
@@ -46,7 +42,9 @@ def objective(trial):
 
     # import parameters to optimize
     # Access the complete 'learning_parameters' group from config_instance
-    optimization_learning_parameters = dict(config_instance.items('optimization_learning_parameters'))
+    optimization_learning_parameters = dict(
+        config_instance.items('optimization_learning_parameters')
+    )
 
     for key, value in optimization_learning_parameters.items():
         # Remove opening bracket from first value and closing bracket from last value
@@ -67,8 +65,10 @@ def objective(trial):
 
         if key == "fc1_dims":
             # If the parameter is 'fc1_dims', also set 'fc2_dims' to the same value
-            config_instance.set("learning_parameters", "fc2_dims", str(trial_param//3))
-    
+            config_instance.set(
+                "learning_parameters", "fc2_dims", str(trial_param // 3)
+            )
+
     trial_directory = f"{dirname}/trial_{ti}"
     # Create the directory if it doesn't exist
     if not os.path.exists(trial_directory):
@@ -80,10 +80,13 @@ def objective(trial):
     with open(os.path.join(trial_directory, "config.ini"), "w") as configfile:
         config_instance.write(configfile)
 
-    session = qst_training(config_instance=config_instance, optuna_trial=trial, progress_bar=False)
+    # Run training (session variable not used)
+    qst_training(
+        config_instance=config_instance, optuna_trial=trial, progress_bar=False
+    )
 
     noise = config_instance.getboolean("noise_parameters", "noise")
-    
+
     if not noise:
         # If noise is not used, we can skip the validation
         print("Skipping validation as noise is not used.")
@@ -101,15 +104,18 @@ def objective(trial):
             top_10_mean = 0.0
         return top_10_mean
 
-    selected_metric = config_instance.get("optuna_optimization", "optuna_metric")
+    selected_metric = config_instance.get(
+        "optuna_optimization", "optuna_metric"
+    )
 
-    value = qst_validation(config_instance=config_instance, validation_metric=selected_metric, validation_episodes=100)
+    value = qst_validation(
+        config_instance=config_instance,
+        validation_metric=selected_metric,
+        validation_episodes=100
+    )
 
-    
     return value  # Return the average Q-value of the last 100 episodes
 
-
-ti = 0
 # Limit number of threads for CPU optimization
 os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
@@ -117,17 +123,26 @@ os.environ["MKL_NUM_THREADS"] = "1"
 os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
 os.environ["NUMEXPR_NUM_THREADS"] = "1"
 
+ti = 0
 # Use efficient sampler and pruner for CPU
 sampler = optuna.samplers.TPESampler()
 pruner = optuna.pruners.MedianPruner()
-study = optuna.create_study(direction="maximize", sampler=sampler, pruner=pruner)
+study = optuna.create_study(
+    direction="maximize",
+    sampler=sampler,
+    pruner=pruner
+)
 ntrials = config_instance.getint("optuna_optimization", "ntrials")
 
 # Use parallel execution for CPU optimization
-import multiprocessing
 n_jobs = min(multiprocessing.cpu_count(), 4)  # Limit to 4 or number of CPUs
 
-study.optimize(objective, n_trials=ntrials, n_jobs=n_jobs, show_progress_bar=False)
+study.optimize(
+    objective,
+    n_trials=ntrials,
+    n_jobs=n_jobs,
+    show_progress_bar=False
+)
 
 best_trial = study.best_trial
 best_params = study.best_params
