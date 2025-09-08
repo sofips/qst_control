@@ -699,3 +699,13 @@ adapted_zhang_implementation/modelos_exitosos/n10_noise_free_004/final_model/mod
 adapted_zhang_implementation/modelos_exitosos/n10_noise_free_004/final_model/model.ckpt.index
 adapted_zhang_implementation/modelos_exitosos/n10_noise_free_004/final_model/model.ckpt.meta
 adapted_zhang_implementation/modelos_exitosos/n10_noise_free_004/logs/events.out.tfevents.1757019648.sofi
+genetic_algorithm/results/original_functions/dc_ga_var_n.py
+genetic_algorithm/results/original_functions/dgamod.py
+genetic_algorithm/results/original_functions/n7_config.ini
+genetic_algorithm/results/original_functions/n7.txt
+genetic_algorithm/results/original_functions/n10_config.ini
+genetic_algorithm/results/original_functions/n10.txt
+genetic_algorithm/results/original_functions/n13_config.ini
+genetic_algorithm/results/original_functions/n13.txt
+genetic_algorithm/results/original_functions/n16_config.ini
+genetic_algorithm/results/original_functions/original_functions.ini
