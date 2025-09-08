@@ -31,10 +31,10 @@ if sys.argv[1] == 'interactive':
 
 else:
     new_experiment =  True  
-    experiment_alias = 'n16_025noise_optuning'
+    experiment_alias = sys.argv[1]
     dirname = 'opt_for_' + experiment_alias
     optuna_metric = "average_val_fidelity" 
-    experiment_description = 'optimization of fc1_dims, lr and gamma value for original actions and reward in chain of size 10' 
+    experiment_description = 'optimization of fc1_dims, lr and gamma value for original actions and reward in chain of size 13' 
     optuna_metric = "average_val_fidelity"  
 
 
@@ -47,7 +47,7 @@ optimization_system_parameters = {
 
 optimization_learning_parameters = {
     ("gamma"): [0.95, 1., False, "float"],
-    ("fc1_dims"): [1024, 8192, False, "int"],
+    ("fc1_dims"): [512, 2048, False, "int"],
     ("learning_rate"): [0.00001, 0.01, True, "float"],
 }
 
@@ -65,7 +65,7 @@ for param, values in optimization_system_parameters.items():
 #                         SYSTEM PARAMETERS                       #
 # -----------------------------------------------------------------#
 
-chain_length = 16
+chain_length = 13
 tstep_length = 0.15
 tolerance = 0.05
 max_t_steps = 5*chain_length
@@ -76,15 +76,15 @@ coupling = 1
 #                    NOISE PARAMETERS                              #
 # -----------------------------------------------------------------#
 noise = True
-noise_probability = 0.25
-noise_amplitude = 0.25
+noise_probability = 0.1
+noise_amplitude = 0.1
 
 # -----------------------------------------------------------------#
 #                    LEARNING HYPERPARAMETERS                     #
 # -----------------------------------------------------------------#
 prioritized = True
 number_of_features = 2 * chain_length
-number_of_episodes = 30000
+number_of_episodes = 20000
 step_learning_interval = 20
 
 learning_rate = None
