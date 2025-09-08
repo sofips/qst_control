@@ -32,12 +32,10 @@ experiment_name = config_instance.get("experiment", "experiment_alias")
 dirname = config_instance.get("experiment", "directory_name")
 
 def objective(trial):
-    global ti
     global config_instance
     global dirname
 
-    ti += 1
-    print(f"Running trial {ti}")
+    print(f"Running trial {trial.number}")
     tf.reset_default_graph()
 
     # import parameters to optimize
@@ -69,8 +67,8 @@ def objective(trial):
                 "learning_parameters", "fc2_dims", str(trial_param // 3)
             )
 
-    trial_directory = f"{dirname}/trial_{ti}"
-    # Create the directory if it doesn't exist
+    # Use Optuna's unique trial number for directory naming (parallel safe)
+    trial_directory = f"{dirname}/trial_{trial.number}"
     if not os.path.exists(trial_directory):
         os.makedirs(trial_directory)
 
@@ -123,7 +121,6 @@ os.environ["MKL_NUM_THREADS"] = "1"
 os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
 os.environ["NUMEXPR_NUM_THREADS"] = "1"
 
-ti = 0
 # Use efficient sampler and pruner for CPU
 sampler = optuna.samplers.TPESampler()
 pruner = optuna.pruners.MedianPruner()
