@@ -110,11 +110,24 @@ def objective(trial):
 
 
 ti = 0
-# Initialize the Optuna study
-study = optuna.create_study(direction="maximize")
+# Limit number of threads for CPU optimization
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
+
+# Use efficient sampler and pruner for CPU
+sampler = optuna.samplers.TPESampler()
+pruner = optuna.pruners.MedianPruner()
+study = optuna.create_study(direction="maximize", sampler=sampler, pruner=pruner)
 ntrials = config_instance.getint("optuna_optimization", "ntrials")
 
-study.optimize(objective, n_trials=ntrials, show_progress_bar=False)
+# Use parallel execution for CPU optimization
+import multiprocessing
+n_jobs = min(multiprocessing.cpu_count(), 4)  # Limit to 4 or number of CPUs
+
+study.optimize(objective, n_trials=ntrials, n_jobs=n_jobs, show_progress_bar=False)
 
 best_trial = study.best_trial
 best_params = study.best_params
