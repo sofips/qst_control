@@ -132,7 +132,7 @@ study = optuna.create_study(
 ntrials = config_instance.getint("optuna_optimization", "ntrials")
 
 # Use parallel execution for CPU optimization
-n_jobs = min(multiprocessing.cpu_count(), 4)  # Limit to 4 or number of CPUs
+n_jobs = min(multiprocessing.cpu_count(), 16)  # Limit to 16 or number of CPUs
 
 study.optimize(
     objective,
