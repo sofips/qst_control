@@ -32,20 +32,20 @@ experiment_name = config_instance.get("experiment", "experiment_alias")
 dirname = config_instance.get("experiment", "directory_name")
 
 def objective(trial):
-    global config_instance
-    global dirname
-
     print(f"Running trial {trial.number}")
     tf.reset_default_graph()
 
+    # Create a fresh config instance for this trial
+    local_config = configparser.ConfigParser()
+    local_config.read(config_file + '.ini')
+    local_dirname = local_config.get("experiment", "directory_name")
+
     # import parameters to optimize
-    # Access the complete 'learning_parameters' group from config_instance
     optimization_learning_parameters = dict(
-        config_instance.items('optimization_learning_parameters')
+        local_config.items('optimization_learning_parameters')
     )
 
     for key, value in optimization_learning_parameters.items():
-        # Remove opening bracket from first value and closing bracket from last value
         vals = value.split(',')
         type_str = ''.join(filter(str.isalpha, vals[3]))
         print(type_str)
@@ -54,41 +54,39 @@ def objective(trial):
             high = int(vals[1].rstrip(']'))
             trial_param = trial.suggest_int(key, low, high)
         elif type_str == "float":
-            # Convert the first value to float and the last value to float
             low = float(vals[0].lstrip('['))
             high = float(vals[1].rstrip(']'))
             log = vals[2].lower() == 'true'
             trial_param = trial.suggest_float(key, low, high, log=log)
-        config_instance.set("learning_parameters", key, str(trial_param))
-
+        local_config.set("learning_parameters", key, str(trial_param))
         if key == "fc1_dims":
-            # If the parameter is 'fc1_dims', also set 'fc2_dims' to the same value
-            config_instance.set(
+            local_config.set(
                 "learning_parameters", "fc2_dims", str(trial_param // 3)
             )
 
     # Use Optuna's unique trial number for directory naming (parallel safe)
-    trial_directory = f"{dirname}/trial_{trial.number}"
+    trial_directory = f"{local_dirname}/trial_{trial.number}"
     if not os.path.exists(trial_directory):
         os.makedirs(trial_directory)
 
-    config_instance.set("experiment", "experiment_alias", str(trial_directory))
+    local_config.set("experiment", "experiment_alias", str(trial_directory))
 
     # Save the updated config_instance to a config file in the trial directory
     with open(os.path.join(trial_directory, "config.ini"), "w") as configfile:
-        config_instance.write(configfile)
+        local_config.write(configfile)
 
-    # Run training (session variable not used)
-    qst_training(
-        config_instance=config_instance, optuna_trial=trial, progress_bar=False
-    )
+    try:
+        qst_training(
+            config_instance=local_config, optuna_trial=trial, progress_bar=False
+        )
+    except Exception as e:
+        print(f"[ERROR] Training failed for trial {trial.number}: {e}")
+        return None
 
-    noise = config_instance.getboolean("noise_parameters", "noise")
+    noise = local_config.getboolean("noise_parameters", "noise")
 
     if not noise:
-        # If noise is not used, we can skip the validation
         print("Skipping validation as noise is not used.")
-
         best_fidelities_path = os.path.join(trial_directory, "best_fidelities.txt")
         if os.path.exists(best_fidelities_path):
             data = np.fromtxt(best_fidelities_path, dtype=float)
@@ -102,15 +100,19 @@ def objective(trial):
             top_10_mean = 0.0
         return top_10_mean
 
-    selected_metric = config_instance.get(
+    selected_metric = local_config.get(
         "optuna_optimization", "optuna_metric"
     )
 
-    value = qst_validation(
-        config_instance=config_instance,
-        validation_metric=selected_metric,
-        validation_episodes=100
-    )
+    try:
+        value = qst_validation(
+            config_instance=local_config,
+            validation_metric=selected_metric,
+            validation_episodes=100
+        )
+    except Exception as e:
+        print(f"[ERROR] Validation failed for trial {trial.number}: {e}")
+        return None
 
     return value  # Return the average Q-value of the last 100 episodes
 
@@ -138,7 +140,7 @@ study.optimize(
     objective,
     n_trials=ntrials,
     n_jobs=n_jobs,
-    show_progress_bar=False
+    show_progress_bar=False,
 )
 
 best_trial = study.best_trial

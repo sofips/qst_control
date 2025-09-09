@@ -157,7 +157,6 @@ def qst_training(config_instance, optuna_trial=None, progress_bar=True):
             success_action_sequences.append(newaction)
 
         if fid_max > max(best_fidelities):
-            print("Best fidelity: ", fid_max)
             saver = tf.train.Saver()
             saver.save(RL.sess, dirname + "/best_model/model.ckpt")
 
