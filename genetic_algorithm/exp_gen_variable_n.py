@@ -13,20 +13,28 @@ config = configparser.ConfigParser()
 
 # system parameters
 
-initial_n = 8  # set initial n
-final_n = 24   # set final n
-n_step = 4
+initial_n = 7  # set initial n
+final_n = 16  # set final n
+n_step = 3
 dt = 0.15      # length of temporal steps
 b = 100        # magnetic field strength
 coupling = 1.0  # coupling strength between nearest neighbors
 
+
 # genetic algorithm parameters
-fitness_function = 'reward_based'  # Options: '{reward,loc,fid}_based'
-action_set = 'oaps'  # Options are: 'oaps', 'zhang'
+fitness_function = 'loc_based'  # Options: '{reward,loc,fid}_based'
+
+if fitness_function == 'loc_based':
+    speed_fraction = 1.1
+else:
+    speed_fraction = None
+
+
+action_set = 'zhang'  # Options are: 'oaps', 'zhang'
 
 num_generations = 1000
 sol_per_pop = 4096
-fidelity_tolerance = 0.05
+fidelity_tolerance = 0.01
 reward_decay = 0.95  # time decay to achieve faster transmission
 saturation = 30
 
@@ -45,7 +53,7 @@ mutation_num_genes = 'n'
 
 # execution and results saving
 directory = sys.argv[1]
-n_samples = 5
+n_samples = 50
 
 
 config["system_parameters"] = {
@@ -56,6 +64,7 @@ config["system_parameters"] = {
     "b": str(b),
     "coupling": str(coupling),
     "action_set": action_set,
+    "speed_fraction": speed_fraction
 }
 
 config["ga_initialization"] = {
