@@ -9,6 +9,7 @@ import csv
 import pandas as pd
 import pickle
 import tensorflow.compat.v1 as tf
+import sys
 from drl_training import *
 from concurrent.futures import ThreadPoolExecutor
 
@@ -17,7 +18,7 @@ optuna.logging.set_verbosity(optuna.logging.ERROR)
 
 
 new_config_file = True
-config_file = input("Enter the config file name (default: config.ini): ") or "config.ini"
+config_file = sys.argv[1] #input("Enter the config file name (default: config.ini): ") or "config.ini"
 
 if new_config_file:
     os.system(f'python3 optuna_config.py {config_file}')
@@ -79,7 +80,7 @@ def objective(trial):
     with open(os.path.join(trial_directory, "config.ini"), "w") as configfile:
         config_instance.write(configfile)
 
-    session = qst_training(config_instance=config_instance, optuna_trial=trial, progress_bar=True)
+    session = qst_training(config_instance=config_instance, optuna_trial=trial, progress_bar=False)
 
     noise = config_instance.getboolean("noise_parameters", "noise")
     
@@ -113,7 +114,7 @@ ti = 0
 study = optuna.create_study(direction="maximize")
 ntrials = config_instance.getint("optuna_optimization", "ntrials")
 
-study.optimize(objective, n_trials=ntrials, show_progress_bar=True)
+study.optimize(objective, n_trials=ntrials, show_progress_bar=False)
 
 best_trial = study.best_trial
 best_params = study.best_params
