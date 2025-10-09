@@ -239,7 +239,7 @@ def loc_based_fitness_gpu(
     return fitness.cpu().numpy()  # Convert once at the end
 
 
-def fitness_func_constructor(fitness_str, props, tolerance=None, gamma=None):
+def fitness_func_constructor(fitness_str, props, tolerance=None, gamma=None, dt = None, speed_fraction = None):
     """
     Used to correctly assign the fitness function to be used in PyGAD
     with the corresponding arguments.
@@ -263,7 +263,7 @@ def fitness_func_constructor(fitness_str, props, tolerance=None, gamma=None):
         fid_args = [props, tolerance, gamma]
         fitness_func = fidelity_fitness_gpu
     elif fitness_str == 'loc_based':
-        fid_args = [props, tolerance, gamma]
+        fid_args = [dt, props, speed_fraction]
         fitness_func = loc_based_fitness_gpu
     else:
         raise ValueError("Invalid fitness function. Choose 'reward_based', "

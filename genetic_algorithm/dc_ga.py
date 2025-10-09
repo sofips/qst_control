@@ -40,6 +40,7 @@ dt = config.getfloat("system_parameters", "dt")
 b = config.getfloat("system_parameters", "b")
 coupling = config.getfloat("system_parameters", "coupling")
 action_set = config.get("system_parameters", "action_set")
+speed_fraction = config.getfloat("system_parameters","speed_fraction")
 
 # genetic algorithm parameters (only n independent)
 num_generations = config.getint("ga_initialization", "num_generations")
@@ -107,7 +108,7 @@ for n in range(initial_n, final_n + 1, n_step):
     )
 
     fitness_func = fitness_func_constructor(
-        fitness_function, props, tolerance=fidelity_tolerance, gamma=reward_decay)
+        fitness_function, props, tolerance=fidelity_tolerance, gamma=reward_decay, dt = dt, speed_fraction = speed_fraction)
     mutation_type = "swap"
 
     config_filename = f"{main_dirname}/n{n}_config.ini"
@@ -150,9 +151,11 @@ for n in range(initial_n, final_n + 1, n_step):
 
         maxg = initial_instance.generations_completed
 
-        solution, sol_fitness, sol_idx = initial_instance.best_solution()
+        solution, sol_fitness, sol_idx = initial_instance.best_solution(initial_instance.last_generation_fitness)
 
         max_fidelity, time_max = calc_max_fidelity(solution, props, return_time=True)
+
+        print('sol:', solution, 'fid:', max_fidelity)
         nsolutions.append(solution)
         
         row = {
