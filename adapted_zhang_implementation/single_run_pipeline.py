@@ -8,6 +8,20 @@ from drl_training import *
 import os
 import sys
 
+
+# Limitar los hilos internos
+os.environ["OMP_NUM_THREADS"] = "8"  # o los cores que SLURM te da
+os.environ["TF_NUM_INTRAOP_THREADS"] = "8"
+os.environ["TF_NUM_INTEROP_THREADS"] = "1"
+
+# (opcional) fijar afinidad si el cluster lo recomienda
+os.environ["KMP_AFFINITY"] = "granularity=fine,compact,1,0"
+
+# Comprobá la configuración
+tf.config.threading.set_intra_op_parallelism_threads(8)
+tf.config.threading.set_inter_op_parallelism_threads(1)
+
+
 new_config_file = True
 config_file =  sys.argv[1] #input("Enter the config file name (default: config.ini): ") or "config.ini"
 
