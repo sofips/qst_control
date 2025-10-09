@@ -151,9 +151,11 @@ for n in range(initial_n, final_n + 1, n_step):
 
         maxg = initial_instance.generations_completed
 
-        solution, sol_fitness, sol_idx = initial_instance.best_solution()
+        solution, sol_fitness, sol_idx = initial_instance.best_solution(initial_instance.last_generation_fitness)
 
         max_fidelity, time_max = calc_max_fidelity(solution, props, return_time=True)
+
+        print('sol:', solution, 'fid:', max_fidelity)
         nsolutions.append(solution)
         
         row = {
