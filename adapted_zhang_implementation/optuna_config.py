@@ -34,7 +34,7 @@ else:
     experiment_alias = sys.argv[1]
     dirname = 'opt_for_' + experiment_alias
     optuna_metric = "average_val_fidelity" 
-    experiment_description = 'optimization of fc1_dims, lr and gamma value for original actions and reward in chain of size 13' 
+    experiment_description = 'optimization of fc1_dims, lr and gamma value for original actions and reward in chain of size 13 noise (0,25, =25)' 
     optuna_metric = "average_val_fidelity"  
 
 
@@ -46,12 +46,12 @@ optimization_system_parameters = {
 }
 
 optimization_learning_parameters = {
-    ("gamma"): [0.95, 1., False, "float"],
-    ("fc1_dims"): [512, 2048, False, "int"],
+    ("gamma"): [0.9, 1., False, "float"],
+    ("fc1_dims"): [1024, 4096, False, "int"],
     ("learning_rate"): [0.00001, 0.01, True, "float"],
 }
 
-ntrials = 50
+ntrials = 64
 
 print("Running optuna optimization for the following learning parameters:")
 for param, values in optimization_learning_parameters.items():
@@ -65,7 +65,7 @@ for param, values in optimization_system_parameters.items():
 #                         SYSTEM PARAMETERS                       #
 # -----------------------------------------------------------------#
 
-chain_length = 13
+chain_length = 16
 tstep_length = 0.15
 tolerance = 0.05
 max_t_steps = 5*chain_length
@@ -76,8 +76,8 @@ coupling = 1
 #                    NOISE PARAMETERS                              #
 # -----------------------------------------------------------------#
 noise = True
-noise_probability = 0.1
-noise_amplitude = 0.1
+noise_probability = 0.10
+noise_amplitude = 0.10
 
 # -----------------------------------------------------------------#
 #                    LEARNING HYPERPARAMETERS                     #
@@ -105,7 +105,7 @@ fc2_dims = fc1_dims//3
 dropout = 0.0 #not yet implemented in DQNPrioritizedReplay
 
 reward_function = "original"     # "original" , "full reward", "ipr", "site evolution"
-action_set = "zhang"   # "zhang", "oaps" (action per site)
+action_set = "oaps"   # "zhang", "oaps" (action per site)
 n_actions = 16 if action_set == "zhang" else chain_length + 1  if action_set == "oaps" else 0
 
 # ------------------------------------------------------------------------------
