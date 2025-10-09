@@ -15,7 +15,7 @@ config = configparser.ConfigParser()
 # experiment_description = input('Notes / Comments: ')
 
 experiment_alias = sys.argv[1]  #'n10_noise10_010'
-experiment_description = 'n10 og parameters, noise baja probabilidad. Test'
+experiment_description = 'best params for n32 but updated to use oaps'
 
 #run = input("Run experiment (y/n): ")
 #run = True if run == "y" else False if run == "n" else sys.exit("Error: y o n")
@@ -29,7 +29,7 @@ run = False
 # -----------------------------------------------------------------#
 
 
-chain_length = 7
+chain_length = 32
 tstep_length = 0.15
 tolerance = 0.05
 max_t_steps = 5*chain_length
@@ -48,11 +48,11 @@ noise_amplitude = 0.1
 # -----------------------------------------------------------------#
 prioritized = True
 number_of_features = 2 * chain_length
-number_of_episodes = 8000
+number_of_episodes = 30000
 step_learning_interval = 5
 
-learning_rate = 0.005
-gamma = 1 # 1 for no decay
+learning_rate = 0.0002
+gamma = 0.999 # 1 for no decay
 
 # memory
 replace_target_iter = 200
@@ -64,12 +64,12 @@ epsilon = 0.99
 epsilon_increment = 0.0001
 
 # dqn
-fc1_dims = 2048
+fc1_dims = 4096
 fc2_dims = fc1_dims//3
 dropout = 0.0 #not yet implemented in DQNPrioritizedReplay
 
 reward_function = "original"     # "original" , "full reward", "ipr", "site evolution"
-action_set = "zhang"   # "zhang", "oaps" (action per site)
+action_set = "oaps"   # "zhang", "oaps" (action per site)
 
 n_actions = 16 if action_set == "zhang" else chain_length + 1  if action_set == "oaps" else 0
 
