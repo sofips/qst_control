@@ -31,15 +31,13 @@ def mape(y_true, y_pred):
 
 
 class SumTree(object):
-
     data_pointer = 0
 
     def __init__(self, capacity):
         self.capacity = capacity  # for all priority values
-        self.tree = np.zeros(2 * capacity - 1)
-        # [--------------Parent nodes-------------][-------leaves to recode priority-------]
-        #             size: capacity - 1                       size: capacity
-        self.data = np.zeros(capacity, dtype=object)  # for all transitions
+        self.tree = np.zeros(2 * capacity - 1, dtype=np.float32)
+        # Use a list for transitions to avoid dtype=object array
+        self.data = [None] * capacity  # for all transitions
         # [--------------data frame-------------]
         #             size: capacity
 
@@ -118,26 +116,28 @@ class Memory(object):  # stored as ( s, a, r, s_ ) in SumTree
         self.tree.add(max_p, transition)  # set the max p for new p
 
     def sample(self, n):
-        b_idx, b_memory, ISWeights = (
-            np.empty((n,), dtype=np.int32),
-            np.empty((n, self.tree.data[0].size)),
-            np.empty((n, 1)),
-        )
+        b_idx = np.empty((n,), dtype=np.int32)
+        # Use a list for b_memory to avoid preallocating large arrays
+        b_memory = []
+        ISWeights = np.empty((n, 1), dtype=np.float32)
         pri_seg = self.tree.total_p / n  # priority segment
-        self.beta = np.min(
-            [1.0, self.beta + self.beta_increment_per_sampling]
-        )  # max = 1
+        self.beta = np.min([
+            1.0, self.beta + self.beta_increment_per_sampling
+        ])  # max = 1
 
         min_prob = (
-            np.min(self.tree.tree[-self.tree.capacity :]) / self.tree.total_p
-        )  # for later calculate ISweight
+            np.min(self.tree.tree[-self.tree.capacity :]) / (self.tree.total_p + 1e-8)
+        )  # for later calculate ISweight, add epsilon to avoid div by zero
         for i in range(n):
             a, b = pri_seg * i, pri_seg * (i + 1)
             v = np.random.uniform(a, b)
             idx, p, data = self.tree.get_leaf(v)
-            prob = p / self.tree.total_p
-            ISWeights[i, 0] = np.power(prob / min_prob, -self.beta)
-            b_idx[i], b_memory[i, :] = idx, data
+            prob = p / (self.tree.total_p + 1e-8)
+            ISWeights[i, 0] = np.power(prob / (min_prob + 1e-8), -self.beta)
+            b_idx[i] = idx
+            b_memory.append(data)
+        # Convert b_memory to np.array at the end for compatibility
+        b_memory = np.array(b_memory, dtype=np.float32)
         return b_idx, b_memory, ISWeights
 
     def batch_update(self, tree_idx, abs_errors):

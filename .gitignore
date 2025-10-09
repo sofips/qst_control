@@ -803,6 +803,8 @@ adapted_zhang_implementation/modelos_exitosos/trial_6/final_model/model.ckpt.dat
 adapted_zhang_implementation/modelos_exitosos/trial_6/final_model/model.ckpt.index
 adapted_zhang_implementation/modelos_exitosos/trial_6/final_model/model.ckpt.meta
 adapted_zhang_implementation/modelos_exitosos/trial_6/logs/events.out.tfevents.1759883196.atom
+<<<<<<< HEAD
+=======
 adapted_zhang_implementation/modelos_exitosos/n13_10amp_10noise_opt/best_action_sequences.txt
 adapted_zhang_implementation/modelos_exitosos/n13_10amp_10noise_opt/best_fidelities.txt
 adapted_zhang_implementation/modelos_exitosos/n13_10amp_10noise_opt/config.ini
@@ -888,6 +890,7 @@ adapted_zhang_implementation/modelos_exitosos/trial_31/final_model/model.ckpt.da
 adapted_zhang_implementation/modelos_exitosos/trial_31/final_model/model.ckpt.index
 adapted_zhang_implementation/modelos_exitosos/trial_31/final_model/model.ckpt.meta
 adapted_zhang_implementation/modelos_exitosos/trial_31/logs/events.out.tfevents.1759618942.atom
+>>>>>>> main
 genetic_algorithm/results/reward_based_fitness_oaps_actions_95/dc_ga.py
 genetic_algorithm/results/reward_based_fitness_oaps_actions_95/dgamod.py
 genetic_algorithm/results/reward_based_fitness_oaps_actions_95/n8_config.ini
