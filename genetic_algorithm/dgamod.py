@@ -203,8 +203,7 @@ def loc_based_fitness_gpu(
     # Initialize states tensor (batch dimension added)
     states = T.zeros(
         (num_sequences, steps + 1, chain_length),
-        dtype=T.complex64,
-        device=device
+        dtype=T.complex64, device=device
     )
     states[:, 0, 0] = 1.0  # Initial condition
 

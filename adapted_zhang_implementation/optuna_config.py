@@ -46,12 +46,12 @@ optimization_system_parameters = {
 }
 
 optimization_learning_parameters = {
-    ("gamma"): [0.95, 1., False, "float"],
-    ("fc1_dims"): [512, 2048, False, "int"],
-    ("learning_rate"): [0.00001, 0.01, True, "float"],
+    ("gamma"): [0.98, 1., False, "float"],
+    ("fc1_dims"): [2048, 4096, False, "int"],
+    ("learning_rate"): [0.001, 0.01, False, "float"],
 }
 
-ntrials = 50
+ntrials = 32
 
 print("Running optuna optimization for the following learning parameters:")
 for param, values in optimization_learning_parameters.items():
@@ -65,7 +65,7 @@ for param, values in optimization_system_parameters.items():
 #                         SYSTEM PARAMETERS                       #
 # -----------------------------------------------------------------#
 
-chain_length = 13
+chain_length = 32
 tstep_length = 0.15
 tolerance = 0.05
 max_t_steps = 5*chain_length
@@ -76,16 +76,16 @@ coupling = 1
 #                    NOISE PARAMETERS                              #
 # -----------------------------------------------------------------#
 noise = True
-noise_probability = 0.1
-noise_amplitude = 0.1
+noise_probability = 0.25
+noise_amplitude = 0.25
 
 # -----------------------------------------------------------------#
 #                    LEARNING HYPERPARAMETERS                     #
 # -----------------------------------------------------------------#
 prioritized = True
 number_of_features = 2 * chain_length
-number_of_episodes = 20000
-step_learning_interval = 20
+number_of_episodes = 30000
+step_learning_interval = 64
 
 learning_rate = None
 gamma = None
@@ -105,7 +105,7 @@ fc2_dims = fc1_dims//3
 dropout = 0.0 #not yet implemented in DQNPrioritizedReplay
 
 reward_function = "original"     # "original" , "full reward", "ipr", "site evolution"
-action_set = "zhang"   # "zhang", "oaps" (action per site)
+action_set = "oaps"   # "zhang", "oaps" (action per site)
 n_actions = 16 if action_set == "zhang" else chain_length + 1  if action_set == "oaps" else 0
 
 # ------------------------------------------------------------------------------
