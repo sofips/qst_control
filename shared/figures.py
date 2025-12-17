@@ -30,18 +30,18 @@ def print_parameters(config_file, ncols=3, col_width=30):
     print('\n')
 
 
-def extract_results(directory,
+def extract_ga_results(directory,
                     print_params=True,
                     filename='results.dat',
                     header=None,
                     delimiter=',',
                     skiprows=1,
                     columns=['chain_length',
-                                'sample',
-                                'fid',
+                                'sample_index',
+                                'max_fidelity',
                                 'ttime',
-                                'generations',
-                                'cputime']):
+                                'cpu_time',
+                                'generations']):
 
     results = pd.read_csv(directory + filename,
                         header=header,
@@ -57,13 +57,41 @@ def extract_results(directory,
     return results
 
 
-def access_evolutions(directory, chain_length, return_natural_evolution=False):
+def access_ga_evolutions(directory, chain_length, return_natural_evolution=False):
 
     config_file = directory + f'n{chain_length}_config.ini'
     config = configparser.ConfigParser()
     config.read(config_file)
 
     solutions_file = f'n{chain_length}.txt'
+    solutions_path = os.path.join(directory, solutions_file)
+    solutions = np.genfromtxt(solutions_path, delimiter=' ', dtype=int)
+
+    evolutions = []  # <-- store here
+
+    for row in range(solutions.shape[0]):
+        action_sequence = solutions[row, :]
+
+        forced_evolution, natural_evolution = fidelity_evolution(
+            action_sequence,
+            config_file,
+            add_natural=True
+        )
+
+        evolutions.append(forced_evolution)
+
+    if return_natural_evolution:
+        return np.array(evolutions), natural_evolution
+    else:
+        return np.array(evolutions)
+
+def access_drl_evolutions(directory, chain_length, return_natural_evolution=False):
+
+    config_file = directory + f'n{chain_length}_original_parameters/config.ini' 
+    config = configparser.ConfigParser()
+    config.read(config_file)
+
+    solutions_file = f'n{chain_length}_original_parameters/best_action_sequences.txt'
     solutions_path = os.path.join(directory, solutions_file)
     solutions = np.genfromtxt(solutions_path, delimiter=' ', dtype=int)
 
