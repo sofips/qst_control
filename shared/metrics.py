@@ -115,9 +115,20 @@ def fidelity_evolution(action_sequence, config_file, add_natural=False):
     """
     config = configparser.ConfigParser()
     config.read(config_file)
-    chain_length = config.getint('system_parameters', 'n')
-    dt = config.getfloat('system_parameters', 'dt')
-    b = config.getfloat('system_parameters', 'b')
+    try:
+        chain_length = config.getint('system_parameters', 'n')
+    except configparser.NoOptionError:
+        chain_length = config.getint('system_parameters', 'chain_length')
+    try:
+        dt = config.getfloat('system_parameters', 'dt')
+    except configparser.NoOptionError:
+        dt = config.getfloat('system_parameters', 'tstep_length')
+    
+    try:
+        b = config.getfloat('system_parameters', 'b')
+    except configparser.NoOptionError:
+        b = config.getfloat('system_parameters', 'field_strength')
+    
     coupling = config.getfloat('system_parameters', 'coupling')
     action_set = config.get('system_parameters', 'action_set')
     action_hamiltonians = action_selector(action_set, chain_length, b,coupling)
