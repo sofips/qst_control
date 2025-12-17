@@ -115,7 +115,6 @@ def fidelity_evolution(action_sequence, config_file, add_natural=False):
     """
     config = configparser.ConfigParser()
     config.read(config_file)
-    print(config_file)
     chain_length = config.getint('system_parameters', 'n')
     dt = config.getfloat('system_parameters', 'dt')
     b = config.getfloat('system_parameters', 'b')
@@ -153,4 +152,4 @@ def fidelity_evolution(action_sequence, config_file, add_natural=False):
             natural_evol.append(state_fidelity(free_state))
 
         return forced_evol, natural_evol
-    
+    return forced_evol
