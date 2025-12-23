@@ -15,3 +15,19 @@ test_ult
 test_noise
 
 test3
+
+n32_oaps_reward_based
+
+n32_oaps_reward_based_2
+
+n32_oaps_reward_based_3
+
+loc_based_fitness_oaps_actions_95
+
+loc_based_fitness_oaps_actions_99
+
+loc_based_fitness_zhang_actions_99
+
+loc_based_fitness_zhang_actions_95
+
+n32_zhang_reward_based
