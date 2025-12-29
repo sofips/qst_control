@@ -151,7 +151,7 @@ If you use this repository in your research, please cite:
 
 ```bibtex
 @software{qst_control,
-  title={Quantum State Transfer Optimization},
+  title={Quantum State Transfer Control Optimization},
   author={Sofía Perón Santana},
   year={2025},
   url={https://github.com/sofips/qst_control}
