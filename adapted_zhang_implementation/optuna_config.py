@@ -46,12 +46,21 @@ optimization_system_parameters = {
 }
 
 optimization_learning_parameters = {
+<<<<<<< HEAD
     ("gamma"): [0.9, 1., False, "float"],
     ("fc1_dims"): [1024, 4096, False, "int"],
     ("learning_rate"): [0.00001, 0.01, True, "float"],
 }
 
 ntrials = 64
+=======
+    ("gamma"): [0.98, 1., False, "float"],
+    ("fc1_dims"): [2048, 4096, False, "int"],
+    ("learning_rate"): [0.001, 0.01, False, "float"],
+}
+
+ntrials = 32
+>>>>>>> 2521d5ccea68eeb18d1d75969698c31c852547a9
 
 print("Running optuna optimization for the following learning parameters:")
 for param, values in optimization_learning_parameters.items():
@@ -65,7 +74,11 @@ for param, values in optimization_system_parameters.items():
 #                         SYSTEM PARAMETERS                       #
 # -----------------------------------------------------------------#
 
+<<<<<<< HEAD
 chain_length = 16
+=======
+chain_length = 32
+>>>>>>> 2521d5ccea68eeb18d1d75969698c31c852547a9
 tstep_length = 0.15
 tolerance = 0.05
 max_t_steps = 5*chain_length
@@ -76,16 +89,21 @@ coupling = 1
 #                    NOISE PARAMETERS                              #
 # -----------------------------------------------------------------#
 noise = True
+<<<<<<< HEAD
 noise_probability = 0.10
 noise_amplitude = 0.10
+=======
+noise_probability = 0.25
+noise_amplitude = 0.25
+>>>>>>> 2521d5ccea68eeb18d1d75969698c31c852547a9
 
 # -----------------------------------------------------------------#
 #                    LEARNING HYPERPARAMETERS                     #
 # -----------------------------------------------------------------#
 prioritized = True
 number_of_features = 2 * chain_length
-number_of_episodes = 20000
-step_learning_interval = 20
+number_of_episodes = 30000
+step_learning_interval = 64
 
 learning_rate = None
 gamma = None
