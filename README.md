@@ -110,8 +110,6 @@ This will generate and run a GA experiment and create a directory ```dirname``` 
 
 ## Results & Trained Models
 
-Successfully trained models are stored in `adapted_zhang_implementation/modelos_exitosos/`:
-
 
 Optuna optimized models are stored in `adapted_zhang_implementation/optimized_models/`:
 
@@ -121,6 +119,8 @@ optimized_models/
 ├── n32_25amp_25prob_oaps/    # Chain length 32, 25% noise, OAPS action set
 └── ...
 ```
+
+Genetic algorithm results for different chain lengths are stored in `genetic_algorithm/results`
 
 ## Analysis & Visualization
 
@@ -151,7 +151,7 @@ If you use this repository in your research, please cite:
 
 ```bibtex
 @software{qst_control,
-  title={Quantum State Transfer Optimization},
+  title={Quantum State Transfer Control Optimization},
   author={Sofía Perón Santana},
   year={2025},
   url={https://github.com/sofips/qst_control}
