@@ -117,11 +117,19 @@ def objective(trial):
     return value  # Return the average Q-value of the last 100 episodes
 
 # Limit number of threads for CPU optimization
+<<<<<<< HEAD
 os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
 os.environ["MKL_NUM_THREADS"] = "1"
 os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
 os.environ["NUMEXPR_NUM_THREADS"] = "1"
+=======
+os.environ["OMP_NUM_THREADS"] = "4"
+os.environ["OPENBLAS_NUM_THREADS"] = "4"
+os.environ["MKL_NUM_THREADS"] = "4"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "4"
+os.environ["NUMEXPR_NUM_THREADS"] = "4"
+>>>>>>> 2521d5ccea68eeb18d1d75969698c31c852547a9
 
 # Use efficient sampler and pruner for CPU
 sampler = optuna.samplers.TPESampler()
@@ -134,7 +142,7 @@ study = optuna.create_study(
 ntrials = config_instance.getint("optuna_optimization", "ntrials")
 
 # Use parallel execution for CPU optimization
-n_jobs = 16  # Limit to 16 or number of CPUs
+n_jobs = 4  # Limit to 16 or number of CPUs
 
 study.optimize(
     objective,
