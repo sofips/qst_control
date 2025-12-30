@@ -2,6 +2,9 @@
 
 A comprehensive toolkit implementing **Genetic Algorithm (GA)** and **Deep Reinforcement Learning (DRL)** approaches for discovering optimal quantum control sequences in spin chains.
 
+<a href="https://doi.org/10.5281/zenodo.18091211"><img src="https://zenodo.org/badge/1036925825.svg" alt="DOI"></a>
+
+
 ## Physical Problem
 
 **Quantum State Transfer (QST)** is the faithful transmission of quantum states across qubit arrays. This is a fundamental task in quantum information processing and quantum computing architectures. The goal is to maximize transfer fidelity while minimizing control time and robustness to noise.
@@ -197,6 +200,13 @@ This creates:
 MIT License - See LICENSE file for details
 
 DRL optimization was adapted from the source code provided by the authors of [1]
+
+## Citation
+
+To cite this repo:
+
+Sofía Perón Santana. (2025). sofips/qst_control: qst_control-v1 (qst-control-v1). Zenodo. https://doi.org/10.5281/zenodo.18091212
+
 ## Contact & Support
 
 For questions or issues:
