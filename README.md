@@ -133,13 +133,6 @@ Generate publication-quality figures:
 jupyter notebook main_figures.ipynb
 ```
 
-### Model Analysis
-Evaluate single trained model:
-
-```bash
-jupyter notebook adapted_zhang_implementation/model_analizing.ipynb
-```
-
 ### Method Comparison
 Compare DRL and GA approaches:
 
