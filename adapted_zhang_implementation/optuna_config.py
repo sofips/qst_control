@@ -214,7 +214,7 @@ config["tags"] = {
 }
 # ---------------------------------------------------
 
-config_name = sys.argv[1] + '.ini' if len(sys.argv) > 1 else experiment_alias + '.ini'
+config_name = sys.argv[1] + '.ini'
 
 try:
     os.mkdir(dirname)

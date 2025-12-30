@@ -25,15 +25,18 @@ Configuration
     Adjust thread settings for cluster/HPC environments as needed.
 """
 
-from state_env import State  # module with environment and dynamics
-from RL_brain_pi_deep import DQNPrioritizedReplay  # sumtree version of DQN
-import numpy as np
-import tensorflow.compat.v1 as tf
-import pandas as pd
-tf.disable_v2_behavior()
-from drl_training import *
+import configparser
 import os
 import sys
+
+import numpy as np
+import tensorflow.compat.v1 as tf
+
+from drl_training import qst_training, qst_validation
+from RL_brain_pi_deep import DQNPrioritizedReplay
+from state_env import State
+
+tf.disable_v2_behavior()
 
 # =========================================================================
 # TENSORFLOW THREAD CONFIGURATION FOR HPC/CLUSTER
