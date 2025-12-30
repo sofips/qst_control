@@ -140,19 +140,6 @@ Compare DRL and GA approaches:
 jupyter notebook adapted_zhang_implementation/method_comparing.ipynb
 ```
 
-## Citation
-
-If you use this repository in your research, please cite:
-
-```bibtex
-@software{qst_control,
-  title={Quantum State Transfer Control Optimization},
-  author={Sofía Perón Santana},
-  year={2025},
-  url={https://github.com/sofips/qst_control}
-}
-```
-
 ## License
 
 MIT License - See LICENSE file for details
