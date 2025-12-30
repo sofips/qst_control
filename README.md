@@ -56,9 +56,11 @@ qst_control/
 │  
 │
 ├── genetic_algorithm/                  # GA-based approach
+│   ├── results/                        # Main results for different chain lengths
+│   ├── action_stats/                   # Experiments with a large number of samples to perform statistics over actions
 │   ├── dc_ga.py                        # Main GA implementation
 │   ├── dgamod.py                       # GA utilities & fitness functions
-│   ├── generate_ga_run.py              # Experiment generator
+│   └── generate_ga_run.py              # Experiment generator, creates config file and calls dc_ga.py
 │
 ├── shared/                             # Shared utilities
 │   ├── actions_module.py               # Action definitions (Zhang, OAPS)
