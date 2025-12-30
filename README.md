@@ -93,10 +93,11 @@ This will:
 
 ### DRL Hyperparameter Optimization
 
-Optimize hyperparameters using Optuna:
+Optimize hyperparameters using Optuna (configure optimization in optuna_config.py):
 
 ```bash
-python adapted_zhang_implementation/optuna_run.py --n_trials 100
+cd adapted_zhang_implementation
+python adapted_zhang_implementation/optuna_run.py
 ```
 
 ### Genetic Algorithm Training
