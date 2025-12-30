@@ -1,12 +1,46 @@
-#####################o###############################################
-# Generate configuration files for RL experiments with ODC
-#####################################################################
+"""Configuration file generator for Optuna hyperparameter optimization.
+
+Generates .ini configuration files for Optuna-based hyperparameter tuning of
+DQN agents for quantum state transfer. Defines optimization ranges for learning
+hyperparameters (learning rate, gamma, network dimensions) and system parameters.
+
+This script is called automatically by optuna_run.py at the start of an
+optimization study to create the base configuration that will be varied across
+trials.
+
+Usage
+-----
+    python optuna_config.py <experiment_name>
+    python optuna_config.py interactive
+
+Arguments
+---------
+    experiment_name : str
+        Name for the optimization study. Creates directory 'opt_for_<name>'.
+    interactive : str
+        Enables interactive mode with prompts for all configuration options.
+
+Examples
+--------
+    python optuna_config.py n16_optimization
+    python optuna_config.py interactive
+
+Configuration
+-------------
+    Modify optimization_learning_parameters and optimization_system_parameters
+    dictionaries to define hyperparameter search spaces. Each parameter has:
+    [lower_bound, upper_bound, use_log_scale, type]
+"""
 
 import configparser
 import os
 import sys
 import shutil
 config = configparser.ConfigParser()
+
+# =========================================================================
+# EXPERIMENT CONFIGURATION MODE
+# =========================================================================
 
 if sys.argv[1] == 'interactive':
     # -----------------------------------------------------------------#
@@ -35,10 +69,15 @@ else:
     dirname = 'opt_for_' + experiment_alias
     optuna_metric = "average_val_fidelity" 
     experiment_description = 'optimization of fc1_dims, lr and gamma value for original actions and reward in chain of size 13 noise (0,25, =25)' 
-    optuna_metric = "average_val_fidelity"  
+    optuna_metric = "average_val_fidelity"
 
 
-# optimization parameters with ranges for Optuna, last tuple value is logscale
+# =========================================================================
+# OPTUNA OPTIMIZATION PARAMETERS
+# =========================================================================
+
+# Define hyperparameter search spaces
+# Format: {parameter_name: [min, max, log_scale, type]}
 optimization_system_parameters = {
     # ("learning_rate", "float"): [0.001, 0.01, True],
     # ("gamma", "float"): [0.90, 0.95, False],
@@ -46,22 +85,14 @@ optimization_system_parameters = {
 }
 
 optimization_learning_parameters = {
-<<<<<<< HEAD
     ("gamma"): [0.9, 1., False, "float"],
     ("fc1_dims"): [1024, 4096, False, "int"],
     ("learning_rate"): [0.00001, 0.01, True, "float"],
 }
 
 ntrials = 64
-=======
-    ("gamma"): [0.98, 1., False, "float"],
-    ("fc1_dims"): [2048, 4096, False, "int"],
-    ("learning_rate"): [0.001, 0.01, False, "float"],
-}
 
-ntrials = 32
->>>>>>> 2521d5ccea68eeb18d1d75969698c31c852547a9
-
+# Display optimization configuration
 print("Running optuna optimization for the following learning parameters:")
 for param, values in optimization_learning_parameters.items():
     print(f"{param}: {values[0]} to {values[1]}, logscale: {values[2]}")
@@ -69,37 +100,28 @@ for param, values in optimization_learning_parameters.items():
 print("Running optuna optimization for the following system parameters:")
 for param, values in optimization_system_parameters.items():
     print(f"{param}: {values[0]} to {values[1]}, logscale: {values[2]}")
+#=========================================================================
+# SYSTEM PARAMETERS
+# =========================================================================
 
-# -----------------------------------------------------------------#
-#                         SYSTEM PARAMETERS                       #
-# -----------------------------------------------------------------#
-
-<<<<<<< HEAD
 chain_length = 16
-=======
-chain_length = 32
->>>>>>> 2521d5ccea68eeb18d1d75969698c31c852547a9
 tstep_length = 0.15
 tolerance = 0.05
 max_t_steps = 5*chain_length
 field_strength = 100
 coupling = 1
 
-# -----------------------------------------------------------------#
-#                    NOISE PARAMETERS                              #
-# -----------------------------------------------------------------#
+# =========================================================================
+# NOISE PARAMETERS
+# =========================================================================
+
 noise = True
-<<<<<<< HEAD
 noise_probability = 0.10
 noise_amplitude = 0.10
-=======
-noise_probability = 0.25
-noise_amplitude = 0.25
->>>>>>> 2521d5ccea68eeb18d1d75969698c31c852547a9
+#=========================================================================
+# LEARNING HYPERPARAMETERS (Base values - will be optimized by Optuna)
+# =========================================================================
 
-# -----------------------------------------------------------------#
-#                    LEARNING HYPERPARAMETERS                     #
-# -----------------------------------------------------------------#
 prioritized = True
 number_of_features = 2 * chain_length
 number_of_episodes = 30000
@@ -115,6 +137,7 @@ batch_size = 32
 
 # epsilon
 epsilon = 0.99 
+epsilon_increment = 0.001
 epsilon_increment = 0.0001
 
 # dqn
