@@ -102,7 +102,7 @@ Optimize hyperparameters using Optuna (configure optimization in optuna_config.p
 
 ```bash
 cd adapted_zhang_implementation
-python adapted_zhang_implementation/optuna_run.py
+python adapted_zhang_implementation/optuna_run.py optuna_experiment_name
 ```
 
 ### Genetic Algorithm Training
@@ -200,7 +200,7 @@ DRL optimization was adapted from the source code provided by the authors of [1]
 
 For questions or issues:
 - Open an issue on GitHub
-- Contact: sofia.peralta@example.com (update as needed)
+- Contact: sofia.peron@mi.unc.edu.ar (update as needed)
 
 ---
 
