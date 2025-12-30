@@ -75,7 +75,8 @@ qst_control/
 Run a single DRL training experiment (configure parameters in gen_config_file):
 
 ```bash
-python adapted_zhang_implementation/single_run_pipeline.py my_experiment
+cd adapted_zhang_implementation
+python3 single_run_pipeline.py my_experiment
 ```
 
 This will:
