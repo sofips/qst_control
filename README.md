@@ -222,7 +222,7 @@ Sofía Perón Santana. (2025). sofips/qst_control: qst_control-v1 (qst-control-v
 
 For questions or issues:
 - Open an issue on GitHub
-- Contact: sofia.peron@mi.unc.edu.ar (update as needed)
+- Contact: sofia.peron@mi.unc.edu.ar
 
 ---
 
