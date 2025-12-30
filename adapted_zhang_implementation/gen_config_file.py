@@ -1,24 +1,38 @@
-#####################################################################
-# Generate configuration files for RL experiments with ODC
-#####################################################################
+"""Configuration file generator for DQN quantum state transfer experiments.
+
+Generates .ini configuration files with system parameters, learning hyperparameters,
+and noise settings for DQN training runs. Creates experiment directory and saves
+config file for use with drl_training.py.
+
+Usage
+-----
+    python gen_config_file.py <experiment_name>
+
+Example
+-------
+    python gen_config_file.py n8_25amp_25prob_oaps
+"""
 
 import configparser
 import os
 import sys
 import shutil
+
 config = configparser.ConfigParser()
 
-# -----------------------------------------------------------------#
+# =========================================================================
+# EXPERIMENT CONFIGURATION
+# =========================================================================
 
 experiment_alias = sys.argv[1]
 experiment_description = 'best params for n32 but updated to use oaps'
 
 new_experiment = True
 run = False
-# -----------------------------------------------------------------#
-#                         SYSTEM PARAMETERS                       #
-# -----------------------------------------------------------------#
 
+# =========================================================================
+# SYSTEM PARAMETERS
+# =========================================================================
 
 chain_length = 8
 tstep_length = 0.15
@@ -27,15 +41,17 @@ max_t_steps = 5*chain_length
 field_strength = 100
 coupling = 1
 
-# -----------------------------------------------------------------#
-#                    NOISE PARAMETERS                              #
-# -----------------------------------------------------------------#
+# =========================================================================
+# NOISE PARAMETERS
+# =========================================================================
+
 noise = True
 noise_probability = 0.1
 noise_amplitude = 0.1
+#=========================================================================
+# LEARNING HYPERPARAMETERS
+#=========================================================================
 
-# -----------------------------------------------------------------#
-#                    LEARNING HYPERPARAMETERS                     #
 # -----------------------------------------------------------------#
 prioritized = True
 number_of_features = 2 * chain_length
@@ -45,26 +61,32 @@ step_learning_interval = 5
 learning_rate = 0.0002
 gamma = 0.999 # 1 for no decay
 
+# Memory parameters
 # memory
 replace_target_iter = 200
 memory_size = 40000
 batch_size = 32
 
-# epsilon
+# Epsilon-greedy parameters
 epsilon = 0.99
 epsilon_increment = 0.0001
 
-# dqn
+# DQN network architecture
 fc1_dims = 4096
 fc2_dims = fc1_dims//3
 dropout = 0.0
 
-reward_function = "original"     # "original" , "full reward", "ipr", "site evolution"
-action_set = "oaps"   # "zhang", "oaps" (action per site)
+# Reward function: "original", "full reward", "ipr", "site evolution"
+reward_function = "original"
 
-n_actions = 16 if action_set == "zhang" else chain_length + 1  if action_set == "oaps" else 0
+# Action set: "zhang" (16 actions), "oaps" (one action per site)
+action_set = "oaps"
 
-# ---------------------------------------------------
+n_actions = 16 if action_set == "zhang" else chain_length + 1 if action_set == "oaps" else 0
+
+# =========================================================================
+# BUILD CONFIGURATION SECTIONS
+# =========================================================================
 config["experiment"] = {"new_experiment": str(new_experiment),
                         "experiment_alias": experiment_alias,
                         "experiment_description": experiment_description,
