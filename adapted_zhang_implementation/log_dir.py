@@ -67,12 +67,9 @@ parameters = {section: dict(config.items(section)) for
 experiment_tags = parameters["tags"]
 system_parameters = parameters["system_parameters"]
 learning_parameters = parameters["learning_parameters"]
+noise_parameters = parameters["noise_parameters"]
 
-# =========================================================================
-# MLFLOW EXPERIMENT SETUP
-# =========================================================================
-
-# Set up MLflow tracking server and create experiment
+# set associated mlflow instance
 experiment_name = config.get("experiment", "experiment_alias")
 tracking_uri = "http://localhost:5005"
 client = MlflowClient(tracking_uri=tracking_uri)
@@ -93,6 +90,7 @@ with mlflow.start_run(run_name=run_name, nested=False):
     mlflow.log_artifacts(directory_name)
     mlflow.log_params(learning_parameters)
     mlflow.log_params(system_parameters)
+    mlflow.log_params(noise_parameters)
     mlflow.set_tags(experiment_tags)
 
     result_files = [file for file in files if 'training_results' in file]
