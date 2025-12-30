@@ -1,5 +1,6 @@
 import numpy as np
-
+import configparser
+from shared.actions_module import *
 
 def calc_max_fidelity(action_sequence, props, return_time=False):
 
@@ -43,27 +44,10 @@ def calc_max_fidelity(action_sequence, props, return_time=False):
     return max_fid
 
 
-# def state_fidelity(state):
-#     """
-#     Calculate the fidelity of a definite quantum state.
-#     Parameters:
-#     - state (numpy.ndarray): A 1D numpy array representing the quantum state.
-#     Returns:
-#     - float: The fidelity of the state, which is the square of the norm of the
-#     last element of the state vector.
-#     """
-
-#     n = np.shape(state)[0]
-#     fid = np.real(state[n - 1] * np.conjugate(state[n - 1]))
-
-#     return fid[0][0]
-
-# state fidelity and mean site take complex state as input
-# and return a real number
-
 def state_fidelity(state):
-
-    return np.asarray((abs(state[-1]) ** 2)[0, 0])  # calculate fidelity
+    amp = state[-1]
+    amp = np.asarray(amp).squeeze()
+    return np.abs(amp)**2
 
 
 def calc_ipr(state):
@@ -86,7 +70,7 @@ def calc_ipr(state):
 
 
 def mean_site(state):
-    
+
     """
     Calculates the mean site index for a given quantum state vector.
     The mean site is computed as the weighted sum of the probability amplitudes
@@ -113,3 +97,70 @@ def mean_site(state):
     )
     return ms
 
+
+def fidelity_evolution(action_sequence, config_file, add_natural=False):
+
+    """
+    Calculate the fidelity evolution over time for a given pulse sequence.
+
+    Parameters:
+    - action_sequence (list or array-like): A sequence of actions to be applied
+    to the initial state.
+    - config_file (str): Path to the configuration file
+    - add_natural (bool, optional): If True, also calculate the natural
+    evolution (without control actions). Default is False.
+
+    Returns:
+    - fidelities (list): A list of fidelity values at each time step.
+    """
+    config = configparser.ConfigParser()
+    config.read(config_file)
+    try:
+        chain_length = config.getint('system_parameters', 'n')
+    except configparser.NoOptionError:
+        chain_length = config.getint('system_parameters', 'chain_length')
+    try:
+        dt = config.getfloat('system_parameters', 'dt')
+    except configparser.NoOptionError:
+        dt = config.getfloat('system_parameters', 'tstep_length')
+    
+    try:
+        b = config.getfloat('system_parameters', 'b')
+    except configparser.NoOptionError:
+        b = config.getfloat('system_parameters', 'field_strength')
+    
+    coupling = config.getfloat('system_parameters', 'coupling')
+    action_set = config.get('system_parameters', 'action_set')
+    action_hamiltonians = action_selector(action_set, chain_length, b,coupling)
+    propagators = gen_props(action_hamiltonians, dt)
+
+    action_sequence = [int(x) for x in action_sequence]
+    t_steps = len(action_sequence) + 1
+
+    initial_state = np.zeros(chain_length, dtype=np.complex_)
+    initial_state[0] = 1.0
+
+    # inicializacion de estado forzado
+    forced_state = initial_state
+    # almacenar evolucion natural y evolucion forzada
+    forced_evol = [state_fidelity(forced_state)]
+
+    for action in action_sequence:
+
+        forced_state = refined_cns(forced_state, action, propagators)
+        forced_evol.append(state_fidelity(forced_state))
+
+    free_state = initial_state
+
+    if add_natural:
+        natural_evol = [state_fidelity(free_state)]
+
+        nat_sequence = np.zeros(int(t_steps - 1), dtype=int)
+
+        for action in nat_sequence:
+
+            free_state = refined_cns(free_state, 0, propagators)
+            natural_evol.append(state_fidelity(free_state))
+
+        return forced_evol, natural_evol
+    return forced_evol

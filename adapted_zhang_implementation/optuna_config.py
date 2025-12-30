@@ -1,12 +1,46 @@
-#####################o###############################################
-# Generate configuration files for RL experiments with ODC
-#####################################################################
+"""Configuration file generator for Optuna hyperparameter optimization.
+
+Generates .ini configuration files for Optuna-based hyperparameter tuning of
+DQN agents for quantum state transfer. Defines optimization ranges for learning
+hyperparameters (learning rate, gamma, network dimensions) and system parameters.
+
+This script is called automatically by optuna_run.py at the start of an
+optimization study to create the base configuration that will be varied across
+trials.
+
+Usage
+-----
+    python optuna_config.py <experiment_name>
+    python optuna_config.py interactive
+
+Arguments
+---------
+    experiment_name : str
+        Name for the optimization study. Creates directory 'opt_for_<name>'.
+    interactive : str
+        Enables interactive mode with prompts for all configuration options.
+
+Examples
+--------
+    python optuna_config.py n16_optimization
+    python optuna_config.py interactive
+
+Configuration
+-------------
+    Modify optimization_learning_parameters and optimization_system_parameters
+    dictionaries to define hyperparameter search spaces. Each parameter has:
+    [lower_bound, upper_bound, use_log_scale, type]
+"""
 
 import configparser
 import os
 import sys
 import shutil
 config = configparser.ConfigParser()
+
+# =========================================================================
+# EXPERIMENT CONFIGURATION MODE
+# =========================================================================
 
 if sys.argv[1] == 'interactive':
     # -----------------------------------------------------------------#
@@ -34,11 +68,16 @@ else:
     experiment_alias = sys.argv[1]
     dirname = 'opt_for_' + experiment_alias
     optuna_metric = "average_val_fidelity" 
-    experiment_description = 'optimization of fc1_dims, lr and gamma value for original actions and reward in chain of size 13' 
-    optuna_metric = "average_val_fidelity"  
+    experiment_description = 'optimization of fc1_dims, lr and gamma value for original actions and reward in chain of size 13 noise (0,25, =25)' 
+    optuna_metric = "average_val_fidelity"
 
 
-# optimization parameters with ranges for Optuna, last tuple value is logscale
+# =========================================================================
+# OPTUNA OPTIMIZATION PARAMETERS
+# =========================================================================
+
+# Define hyperparameter search spaces
+# Format: {parameter_name: [min, max, log_scale, type]}
 optimization_system_parameters = {
     # ("learning_rate", "float"): [0.001, 0.01, True],
     # ("gamma", "float"): [0.90, 0.95, False],
@@ -46,13 +85,14 @@ optimization_system_parameters = {
 }
 
 optimization_learning_parameters = {
-    ("gamma"): [0.95, 1., False, "float"],
-    ("fc1_dims"): [512, 2048, False, "int"],
+    ("gamma"): [0.9, 1., False, "float"],
+    ("fc1_dims"): [1024, 4096, False, "int"],
     ("learning_rate"): [0.00001, 0.01, True, "float"],
 }
 
-ntrials = 50
+ntrials = 64
 
+# Display optimization configuration
 print("Running optuna optimization for the following learning parameters:")
 for param, values in optimization_learning_parameters.items():
     print(f"{param}: {values[0]} to {values[1]}, logscale: {values[2]}")
@@ -60,32 +100,32 @@ for param, values in optimization_learning_parameters.items():
 print("Running optuna optimization for the following system parameters:")
 for param, values in optimization_system_parameters.items():
     print(f"{param}: {values[0]} to {values[1]}, logscale: {values[2]}")
+#=========================================================================
+# SYSTEM PARAMETERS
+# =========================================================================
 
-# -----------------------------------------------------------------#
-#                         SYSTEM PARAMETERS                       #
-# -----------------------------------------------------------------#
-
-chain_length = 13
+chain_length = 16
 tstep_length = 0.15
 tolerance = 0.05
 max_t_steps = 5*chain_length
 field_strength = 100
 coupling = 1
 
-# -----------------------------------------------------------------#
-#                    NOISE PARAMETERS                              #
-# -----------------------------------------------------------------#
-noise = True
-noise_probability = 0.1
-noise_amplitude = 0.1
+# =========================================================================
+# NOISE PARAMETERS
+# =========================================================================
 
-# -----------------------------------------------------------------#
-#                    LEARNING HYPERPARAMETERS                     #
-# -----------------------------------------------------------------#
+noise = True
+noise_probability = 0.10
+noise_amplitude = 0.10
+#=========================================================================
+# LEARNING HYPERPARAMETERS (Base values - will be optimized by Optuna)
+# =========================================================================
+
 prioritized = True
 number_of_features = 2 * chain_length
-number_of_episodes = 20000
-step_learning_interval = 20
+number_of_episodes = 30000
+step_learning_interval = 64
 
 learning_rate = None
 gamma = None
@@ -97,6 +137,7 @@ batch_size = 32
 
 # epsilon
 epsilon = 0.99 
+epsilon_increment = 0.001
 epsilon_increment = 0.0001
 
 # dqn
@@ -105,7 +146,7 @@ fc2_dims = fc1_dims//3
 dropout = 0.0 #not yet implemented in DQNPrioritizedReplay
 
 reward_function = "original"     # "original" , "full reward", "ipr", "site evolution"
-action_set = "zhang"   # "zhang", "oaps" (action per site)
+action_set = "oaps"   # "zhang", "oaps" (action per site)
 n_actions = 16 if action_set == "zhang" else chain_length + 1  if action_set == "oaps" else 0
 
 # ------------------------------------------------------------------------------
@@ -173,7 +214,7 @@ config["tags"] = {
 }
 # ---------------------------------------------------
 
-config_name = sys.argv[1] + '.ini' if len(sys.argv) > 1 else experiment_alias + '.ini'
+config_name = sys.argv[1] + '.ini'
 
 try:
     os.mkdir(dirname)

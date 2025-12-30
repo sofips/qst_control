@@ -1,3 +1,31 @@
+"""MLflow logging script for DQN training experiment results.
+
+This script logs completed training runs to an MLflow tracking server. It reads
+experiment configuration and results from a specified directory, creates an MLflow
+experiment with appropriate tags, and logs all artifacts, parameters, and metrics
+for visualization and comparison.
+
+The script processes training results with binning for efficient metric logging
+and includes both training and validation metrics when available.
+
+Usage
+-----
+    python log_dir.py <experiment_directory>
+
+Requirements
+------------
+The experiment directory must contain:
+    - config.ini: Configuration file with experiment parameters
+    - training_results.txt: Episode-level training metrics
+    - training_metrics.pkl: Aggregated training statistics
+    - validation_metrics.pkl: Validation statistics (optional)
+    - Model checkpoints and other artifacts to log
+
+MLflow Configuration
+--------------------
+The script connects to an MLflow tracking server at http://localhost:5005.
+Ensure the server is running before executing this script.
+"""
 import os
 import configparser
 import sys
@@ -8,12 +36,17 @@ import pandas as pd
 import pickle
 from tqdm import tqdm
 
+# Get experiment directory from command line argument
 directory_name = sys.argv[1]
 
-# get list of files in directory
+# =========================================================================
+# CONFIGURATION FILE DISCOVERY AND PARSING
+# =========================================================================
+
+# Get list of files in directory
 files = os.listdir(directory_name)
 
-# find config file in directory
+# Find config file in directory
 config_files = [file for file in files if file.endswith('.ini')]
 
 if len(config_files) > 1:
@@ -23,7 +56,7 @@ elif len(config_files) == 1:
 else:
     raise Exception("No config files were found in the directory.")
 
-# create associated config instance
+# Create associated config instance
 config = configparser.ConfigParser()
 config.read(os.path.join(directory_name, config_file))
 
@@ -35,7 +68,11 @@ experiment_tags = parameters["tags"]
 system_parameters = parameters["system_parameters"]
 learning_parameters = parameters["learning_parameters"]
 
-# set associated mlflow instance
+# =========================================================================
+# MLFLOW EXPERIMENT SETUP
+# =========================================================================
+
+# Set up MLflow tracking server and create experiment
 experiment_name = config.get("experiment", "experiment_alias")
 tracking_uri = "http://localhost:5005"
 client = MlflowClient(tracking_uri=tracking_uri)
@@ -51,6 +88,8 @@ mlflow.set_experiment(experiment_name)
 
 with mlflow.start_run(run_name=run_name, nested=False):
     print(f"Logging to experiment: {experiment_name}")
+    
+    # Log all experiment artifacts (models, config, results)
     mlflow.log_artifacts(directory_name)
     mlflow.log_params(learning_parameters)
     mlflow.log_params(system_parameters)
@@ -71,16 +110,17 @@ with mlflow.start_run(run_name=run_name, nested=False):
     df = pd.read_csv(results_file, delimiter=" ", index_col=False, header=0)
     df.reset_index(drop=True, inplace=True)
 
+    # Bin episodes for efficient metric logging (reduces number of logged points)
     nbins = 100
-
     metrics = list(df.columns)
 
-    # Crear una columna de binning basada en el índice (cada 100 filas)
+    # Create binning column based on index (every 100 rows)
     df["binned_step"] = df.index // nbins
 
-    # Agrupar por binned_step y calcular el promedio de cada bin
+    # Group by binned_step and calculate average for each bin
     binned_df = df.groupby("binned_step").mean().reset_index()
 
+    # Log binned metrics to MLflow for visualization
     for index, row in tqdm(binned_df.iterrows(), total=len(binned_df),
                            desc="Logging binned metrics"):
         for metric in metrics:

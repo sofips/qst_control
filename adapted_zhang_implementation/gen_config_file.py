@@ -1,79 +1,92 @@
-#####################################################################
-# Generate configuration files for RL experiments with ODC
-#####################################################################
+"""Configuration file generator for DQN quantum state transfer experiments.
+
+Generates .ini configuration files with system parameters, learning hyperparameters,
+and noise settings for DQN training runs. Creates experiment directory and saves
+config file for use with drl_training.py.
+
+Usage
+-----
+    python gen_config_file.py <experiment_name>
+
+Example
+-------
+    python gen_config_file.py n8_25amp_25prob_oaps
+"""
 
 import configparser
 import os
 import sys
 import shutil
+
 config = configparser.ConfigParser()
 
-# -----------------------------------------------------------------#
-# new_experiment = input("New experiment? (y/n): ")
-# new_experiment = True if new_experiment == "y" else False if new_experiment == "n" else sys.exit("Error: y o n")
-# experiment_alias = input("Experiment alias/name: ")
-# experiment_description = input('Notes / Comments: ')
+# =========================================================================
+# EXPERIMENT CONFIGURATION
+# =========================================================================
 
-experiment_alias = sys.argv[1]  #'n10_noise10_010'
-experiment_description = 'n10 og parameters, noise baja probabilidad. Test'
-
-#run = input("Run experiment (y/n): ")
-#run = True if run == "y" else False if run == "n" else sys.exit("Error: y o n")
+experiment_alias = sys.argv[1]
+experiment_description = 'best params for n32 but updated to use oaps'
 
 new_experiment = True
-#experiment_alias = 'n16_mse_gamma2'
-#experiment_description = 'slow learning with og actions and reward and og gamma'
 run = False
-# -----------------------------------------------------------------#
-#                         SYSTEM PARAMETERS                       #
-# -----------------------------------------------------------------#
 
+# =========================================================================
+# SYSTEM PARAMETERS
+# =========================================================================
 
-chain_length = 7
+chain_length = 8
 tstep_length = 0.15
 tolerance = 0.05
 max_t_steps = 5*chain_length
 field_strength = 100
 coupling = 1
 
-# -----------------------------------------------------------------#
-#                    NOISE PARAMETERS                              #
-# -----------------------------------------------------------------#
+# =========================================================================
+# NOISE PARAMETERS
+# =========================================================================
+
 noise = True
 noise_probability = 0.1
 noise_amplitude = 0.1
+#=========================================================================
+# LEARNING HYPERPARAMETERS
+#=========================================================================
 
-# -----------------------------------------------------------------#
-#                    LEARNING HYPERPARAMETERS                     #
 # -----------------------------------------------------------------#
 prioritized = True
 number_of_features = 2 * chain_length
-number_of_episodes = 8000
+number_of_episodes = 30000
 step_learning_interval = 5
 
-learning_rate = 0.005
-gamma = 1 # 1 for no decay
+learning_rate = 0.0002
+gamma = 0.999 # 1 for no decay
 
+# Memory parameters
 # memory
 replace_target_iter = 200
 memory_size = 40000
 batch_size = 32
 
-# epsilon
+# Epsilon-greedy parameters
 epsilon = 0.99
 epsilon_increment = 0.0001
 
-# dqn
-fc1_dims = 2048
+# DQN network architecture
+fc1_dims = 4096
 fc2_dims = fc1_dims//3
-dropout = 0.0 #not yet implemented in DQNPrioritizedReplay
+dropout = 0.0
 
-reward_function = "original"     # "original" , "full reward", "ipr", "site evolution"
-action_set = "zhang"   # "zhang", "oaps" (action per site)
+# Reward function: "original", "full reward", "ipr", "site evolution"
+reward_function = "original"
 
-n_actions = 16 if action_set == "zhang" else chain_length + 1  if action_set == "oaps" else 0
+# Action set: "zhang" (16 actions), "oaps" (one action per site)
+action_set = "oaps"
 
-# ---------------------------------------------------
+n_actions = 16 if action_set == "zhang" else chain_length + 1 if action_set == "oaps" else 0
+
+# =========================================================================
+# BUILD CONFIGURATION SECTIONS
+# =========================================================================
 config["experiment"] = {"new_experiment": str(new_experiment),
                         "experiment_alias": experiment_alias,
                         "experiment_description": experiment_description,
