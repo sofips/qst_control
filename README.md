@@ -40,18 +40,20 @@ This repository contains two complementary approaches to solve quantum control o
 
 ```
 qst_control/
-├── adapted_zhang_implementation/        # DRL-based approach
-│   ├── drl_training.py                 # Main DQN training module (PEP8 documented)
-│   ├── RL_brain_pi_deep.py             # DQN agent with prioritized replay
-│   ├── state_env.py                    # Quantum environment dynamics
+├── adapted_zhang_implementation/       # DRL-based approach
+|   ├── optimized_models                # Results and models with optimized hyper-parameters
+|   ├── original_drl_results            # Results and models with original parameters from ref. [1]
+│   ├── drl_training.py                 # Main DQN training module
 │   ├── gen_config_file.py              # Config file generator (for single experiment)
+│   ├── log_dir.py                      # Logging utilities for single experiment using mlflow
+│   ├── method_comparing.ipynb          # GA vs DRL robustness comparison notebook
+│   ├── optuna_config.py                # Optuna configuration (called by optuna_run.py)
+│   ├── optuna_log.py                   # Log results of optuna optimization using mlflow
+│   ├── optuna_run.py                   # Hyperparameter optimization using optuna
+│   ├── RL_brain_pi_deep.py             # DQN agent with prioritized replay
 │   ├── single_run_pipeline.py          # Single training experiment pipeline
-│   ├── optuna_run.py                   # Hyperparameter optimization
-│   ├── optuna_config.py                # Optuna configuration
-│   ├── log_dir.py                      # Logging utilities (to use with mlflow)
-│   ├── model_analizing.ipynb           # Model evaluation notebook
-│   ├── method_comparing.ipynb          # GA vs DRL comparison notebook
-│   └── modelos_exitosos/               # Successful trained models
+│   └── state_env.py                    # Quantum environment dynamics
+│  
 │
 ├── genetic_algorithm/                  # GA-based approach
 │   ├── dc_ga.py                        # Main GA implementation
@@ -67,6 +69,9 @@ qst_control/
 ├── main_figures.ipynb                  # Main analysis & results notebook
 ├── requirements.yml                    # Conda environment file
 ```
+
+
+## ML Flow
 
 ## Quick Start
 

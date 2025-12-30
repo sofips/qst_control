@@ -9,27 +9,18 @@ import shutil
 config = configparser.ConfigParser()
 
 # -----------------------------------------------------------------#
-# new_experiment = input("New experiment? (y/n): ")
-# new_experiment = True if new_experiment == "y" else False if new_experiment == "n" else sys.exit("Error: y o n")
-# experiment_alias = input("Experiment alias/name: ")
-# experiment_description = input('Notes / Comments: ')
 
-experiment_alias = sys.argv[1]  #'n10_noise10_010'
+experiment_alias = sys.argv[1]
 experiment_description = 'best params for n32 but updated to use oaps'
 
-#run = input("Run experiment (y/n): ")
-#run = True if run == "y" else False if run == "n" else sys.exit("Error: y o n")
-
 new_experiment = True
-#experiment_alias = 'n16_mse_gamma2'
-#experiment_description = 'slow learning with og actions and reward and og gamma'
 run = False
 # -----------------------------------------------------------------#
 #                         SYSTEM PARAMETERS                       #
 # -----------------------------------------------------------------#
 
 
-chain_length = 32
+chain_length = 8
 tstep_length = 0.15
 tolerance = 0.05
 max_t_steps = 5*chain_length
@@ -66,7 +57,7 @@ epsilon_increment = 0.0001
 # dqn
 fc1_dims = 4096
 fc2_dims = fc1_dims//3
-dropout = 0.0 #not yet implemented in DQNPrioritizedReplay
+dropout = 0.0
 
 reward_function = "original"     # "original" , "full reward", "ipr", "site evolution"
 action_set = "oaps"   # "zhang", "oaps" (action per site)
