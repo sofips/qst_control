@@ -70,7 +70,8 @@ qst_control/
 |
 ├── figures/                            # Resulting figures
 ├── main_figures.ipynb                  # Main analysis & results notebook
-└── requirements.yml                    # Conda environment file
+├── requirements                        # Main analysis & results notebook
+└── log_env.yml                         # Conda environment file for mlflow
 ```
 
 ## Quick Start
@@ -131,7 +132,7 @@ jupyter notebook main_figures.ipynb
 
 ### Post-Training Logging Workflow
 
-This project uses **MLflow** for experiment tracking and comparison. To avoid complications with logging from HPC clusters (network restrictions, authentication issues), experiments are logged **after training completion** using dedicated logging scripts.
+This project uses **MLflow** for experiment tracking and comparison. To avoid complications with logging from HPC clusters (network restrictions, authentication issues), experiments are logged **after training completion** using dedicated logging scripts. This needs a different conda environment with requirements stated in log_env.yml.
 
 #### Workflow:
 1. **Train on HPC/Local**: Run training experiments (DRL or Optuna optimization) which save results to disk
