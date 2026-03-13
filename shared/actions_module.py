@@ -2,7 +2,7 @@ import numpy as np
 from scipy.linalg import expm
 
 
-def zhang_actions(field_strength, chain_length, coupling):
+def zhang_actions(field_strength, chain_length, coupling, epsilon=0.):
     """
     Adapted from Zhang et. al work. Generates a set of action matrices
     corresponding to the actions described in the paper. 
@@ -55,7 +55,7 @@ def zhang_actions(field_strength, chain_length, coupling):
     return action_hamiltonians
 
 
-def one_field_actions(field_strength, chain_length, coupling):
+def one_field_actions(field_strength, chain_length, coupling,epsilon=0.):
     """
     Generates a set of action matrices corresponding to fields acting 
     on every individual site.
@@ -90,6 +90,94 @@ def one_field_actions(field_strength, chain_length, coupling):
 
     return action_hamiltonians
 
+def not_homogeneous_one_field_actions(field_strength, chain_length, coupling, epsilon):
+    """
+    Generates a set of action matrices corresponding to fields acting 
+    on every individual site.
+
+    Parameters:
+    field_strength (float): The maximum value of the field,
+    chain_length (int): Chain length (no. of sites)
+    coupling (float): The coupling strength between nearest neighbors.
+
+    Returns:
+    action_hamiltonians(numpy.ndarray): A 3D numpy array of shape:
+    (chain_length + 1, chain_length, chain_length) representing the actions.
+    """
+    perturbed_couplings = coupling + np.random.uniform(-epsilon, epsilon, size=chain_length - 1)  # Perturbed couplings
+    action_hamiltonians = np.zeros((chain_length + 1,
+                                    chain_length,
+                                    chain_length), dtype=complex)
+
+    for i in range(0, chain_length):
+
+        for k in range(0, chain_length - 1):
+            action_hamiltonians[i + 1, k, k + 1] = perturbed_couplings[k]  # Using the perturbed coupling
+            action_hamiltonians[i + 1, k + 1, k] = action_hamiltonians[i + 1,
+                                                                       k,
+                                                                       k + 1]
+
+        action_hamiltonians[i + 1, i, i] = field_strength
+
+    for k in range(0, chain_length - 1):
+        action_hamiltonians[0, k, k + 1] = perturbed_couplings[k]  # Using the perturbed coupling
+        action_hamiltonians[0, k + 1, k] = action_hamiltonians[0, k, k + 1]
+
+    return action_hamiltonians
+
+def not_homogeneous_zhang_actions(field_strength, chain_length, coupling, epsilon):
+    """
+    Adapted from Zhang et. al work. Generates a set of action matrices
+    corresponding to the actions described in the paper. 
+
+    Parameters:
+    field_strength (float): The maximum value of the field
+    chain_length (int): Chain length (no. of sites)
+    coupling (float): The coupling strength between nearest neighbors.
+
+    Returns:
+    action_hamiltonians(numpy.ndarray): A 3D numpy array of shape (16,
+    chain_length, chain_length) representing the action matrices.
+    """
+    nc = 3  # number of control sites, nc=3,there are totally 16 actions.
+    
+    # defining action, each row of 'mag' corresponds to one configuration
+        
+    def binact(A):  # action label
+        m = np.zeros(nc)
+        for ii in range(
+            nc
+        ):  # transfer action to a binary list, for example: action=5,
+            # x=[1, 0, 1, 0], the first and third magnetic is on
+
+            m[nc - 1 - ii] = A >= 2 ** (nc - 1 - ii)
+            A = A - 2 ** (nc - 1 - ii) * m[nc - 1 - ii]
+        return m
+
+    mag = []
+    for ii in range(8):  # control at the beginning
+        mag.append(list(np.concatenate((binact(ii) * field_strength,
+                                        np.zeros(chain_length - nc)))))
+
+    for ii in range(1, 8):  # control at the end
+        mag.append(list(np.concatenate((np.zeros(chain_length - nc),
+                                        binact(ii) * field_strength))))
+
+    mag.append([field_strength for ii in range(chain_length)])
+
+    action_hamiltonians = np.zeros((16,
+                                    chain_length, chain_length), dtype=complex)
+
+    for idx, actions in enumerate(mag):
+        diag_coupling = [coupling + np.random.uniform(-epsilon, epsilon) for _ in range(chain_length - 1)]
+        ham = (
+            np.diag(diag_coupling, 1) * (1 - 0j)
+            + np.diag(diag_coupling, -1) * (1 + 0j)
+            + np.diag(actions)
+        )
+        action_hamiltonians[idx] = ham
+        
+    return action_hamiltonians
 
 def gen_props(action_hamiltonians, dt):
 
@@ -137,7 +225,7 @@ def refined_cns(state, action_index, props):
     return next_state.ravel()
 
 
-def action_selector(actions, n, b, coupling):
+def action_selector(actions, n, b, coupling, epsilon=0.):
     """"Takes string determining action type and outputs the corresponding 
     matrices for desired system
     
@@ -146,15 +234,21 @@ def action_selector(actions, n, b, coupling):
     - n (int): The number of sites in the chain.
     - b (float): The strength of the external field.
     - coupling (float): The coupling strength between nearest neighbors.
+    - epsilon (float): The perturbation strength for non-homogeneous actions. In 
+    homogeneous cases, this parameter is not used.
 
     Returns:
     - action_hamiltonians (numpy.ndarray): 3D array of shape (n_actions, n, n)
     representing the action Hamiltonians.
     """
     if actions == 'oaps':
-        action_hamiltonians = one_field_actions(b, n, coupling)
+        action_hamiltonians = one_field_actions(b, n, coupling, epsilon)
     elif actions == 'zhang':
-        action_hamiltonians = zhang_actions(b, n, coupling)
+        action_hamiltonians = zhang_actions(b, n, coupling, epsilon)
+    elif actions == 'not_homogeneous_oaps':
+        action_hamiltonians = not_homogeneous_one_field_actions(b, n, coupling, epsilon)
+    elif actions == 'not_homogeneous_zhang':
+        action_hamiltonians = not_homogeneous_zhang_actions(b, n, coupling, epsilon)
     else:
         raise ValueError("Invalid action set. Choose 'oaps' or 'zhang'.")
 
