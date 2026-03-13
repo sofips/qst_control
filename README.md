@@ -1,6 +1,9 @@
 # Quantum State Transfer Control Optimization
+<a href="https://doi.org/10.5281/zenodo.18091211"><img src="https://zenodo.org/badge/1036925825.svg" alt="DOI"></a>
 
 A comprehensive toolkit implementing **Genetic Algorithm (GA)** and **Deep Reinforcement Learning (DRL)** approaches for discovering optimal quantum control sequences in spin chains.
+
+
 
 ## Physical Problem
 
@@ -70,7 +73,8 @@ qst_control/
 |
 ├── figures/                            # Resulting figures
 ├── main_figures.ipynb                  # Main analysis & results notebook
-└── requirements.yml                    # Conda environment file
+├── requirements                        # Main analysis & results notebook
+└── log_env.yml                         # Conda environment file for mlflow
 ```
 
 ## Quick Start
@@ -131,7 +135,7 @@ jupyter notebook main_figures.ipynb
 
 ### Post-Training Logging Workflow
 
-This project uses **MLflow** for experiment tracking and comparison. To avoid complications with logging from HPC clusters (network restrictions, authentication issues), experiments are logged **after training completion** using dedicated logging scripts.
+This project uses **MLflow** for experiment tracking and comparison. To avoid complications with logging from HPC clusters (network restrictions, authentication issues), experiments are logged **after training completion** using dedicated logging scripts. This needs a different conda environment with requirements stated in log_env.yml.
 
 #### Workflow:
 1. **Train on HPC/Local**: Run training experiments (DRL or Optuna optimization) which save results to disk
@@ -196,11 +200,29 @@ This creates:
 MIT License - See LICENSE file for details
 
 DRL optimization was adapted from the source code provided by the authors of [1]
+
+## Citation
+
+To cite this repo:
+
+@software{sofia_peron_santana_2025_18091212,
+  author       = {Sofía Perón Santana},
+  title        = {sofips/qst\_control: qst\_control-v1},
+  month        = dec,
+  year         = 2025,
+  publisher    = {Zenodo},
+  version      = {qst-control-v1},
+  doi          = {10.5281/zenodo.18091212},
+  url          = {https://doi.org/10.5281/zenodo.18091212},
+}
+
+Sofía Perón Santana. (2025). sofips/qst_control: qst_control-v1 (qst-control-v1). Zenodo. https://doi.org/10.5281/zenodo.18091212
+
 ## Contact & Support
 
 For questions or issues:
 - Open an issue on GitHub
-- Contact: sofia.peron@mi.unc.edu.ar (update as needed)
+- Contact: sofia.peron@mi.unc.edu.ar
 
 ---
 
