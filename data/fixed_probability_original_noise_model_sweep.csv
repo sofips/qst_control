@@ -1,0 +1,81 @@
+directory,noise_amplitude,mean_fidelity,std_fidelity
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_oaps,0.0,0.9057058189866118,1.1102230246251565e-16
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_oaps,0.05555555555555555,0.9182839764176929,0.017644129299978193
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_oaps,0.1111111111111111,0.91075879912514,0.01873753809260813
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_oaps,0.16666666666666666,0.8980379225374413,0.025409936003828414
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_oaps,0.2222222222222222,0.873445330218543,0.038078919039532026
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_oaps,0.2777777777777778,0.8481783236152765,0.048915482463918185
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_oaps,0.3333333333333333,0.7978668973478282,0.07629430771548289
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_oaps,0.38888888888888884,0.7641537161634601,0.10227472147649644
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_oaps,0.4444444444444444,0.7118987576401813,0.1274751923147334
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_oaps,0.5,0.6579572689171777,0.17193049729936385
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_zhang,0.0,0.9304616186286171,0.0
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_zhang,0.05555555555555555,0.927715895217151,0.013330852829217775
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_zhang,0.1111111111111111,0.913069180325256,0.017452710523714512
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_zhang,0.16666666666666666,0.8905844447299104,0.02726247943974438
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_zhang,0.2222222222222222,0.855874949807622,0.036012362440584464
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_zhang,0.2777777777777778,0.7974917841326996,0.06877485613330524
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_zhang,0.3333333333333333,0.7563352175547762,0.0847374694859541
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_zhang,0.38888888888888884,0.6891902365526622,0.11606288074740222
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_zhang,0.4444444444444444,0.6215682427902197,0.1417413591497854
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_zhang,0.5,0.5753743829937426,0.1645033097304909
+../adapted_zhang_implementation/original_drl_results/n16_original_parameters,0.0,7.384607280891996e-13,1.0097419586828951e-28
+../adapted_zhang_implementation/original_drl_results/n16_original_parameters,0.05555555555555555,4.052171234685733e-07,4.516769740831581e-07
+../adapted_zhang_implementation/original_drl_results/n16_original_parameters,0.1111111111111111,1.4035555892007152e-06,1.5219099292364373e-06
+../adapted_zhang_implementation/original_drl_results/n16_original_parameters,0.16666666666666666,3.0042552363375587e-06,2.7919038831590166e-06
+../adapted_zhang_implementation/original_drl_results/n16_original_parameters,0.2222222222222222,6.084522307488901e-06,5.783285874020138e-06
+../adapted_zhang_implementation/original_drl_results/n16_original_parameters,0.2777777777777778,7.757120509095435e-06,6.779623292449287e-06
+../adapted_zhang_implementation/original_drl_results/n16_original_parameters,0.3333333333333333,1.3682550668195903e-05,1.7785213393293653e-05
+../adapted_zhang_implementation/original_drl_results/n16_original_parameters,0.38888888888888884,1.212146584868997e-05,1.4664631080200674e-05
+../adapted_zhang_implementation/original_drl_results/n16_original_parameters,0.4444444444444444,1.4948837357620337e-05,1.7804521609717707e-05
+../adapted_zhang_implementation/original_drl_results/n16_original_parameters,0.5,1.9955864901609375e-05,1.801792031793032e-05
+../adapted_zhang_implementation/site_evolution/n16_original_parameters,0.0,0.0001115933121533489,2.710505431213761e-20
+../adapted_zhang_implementation/site_evolution/n16_original_parameters,0.05555555555555555,0.33812027695721125,0.3562837989875095
+../adapted_zhang_implementation/site_evolution/n16_original_parameters,0.1111111111111111,0.5510973994819895,0.2925446172898793
+../adapted_zhang_implementation/site_evolution/n16_original_parameters,0.16666666666666666,0.5748055153333635,0.2708908571722813
+../adapted_zhang_implementation/site_evolution/n16_original_parameters,0.2222222222222222,0.5480244157574484,0.25249521079810044
+../adapted_zhang_implementation/site_evolution/n16_original_parameters,0.2777777777777778,0.45013453848830215,0.25336820588891534
+../adapted_zhang_implementation/site_evolution/n16_original_parameters,0.3333333333333333,0.3842829053990578,0.26363396521156957
+../adapted_zhang_implementation/site_evolution/n16_original_parameters,0.38888888888888884,0.38380715629006595,0.24062622776150608
+../adapted_zhang_implementation/site_evolution/n16_original_parameters,0.4444444444444444,0.2910696457117353,0.21571533723657355
+../adapted_zhang_implementation/site_evolution/n16_original_parameters,0.5,0.2930307924266115,0.20309690624448634
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_oaps_site_evolution,0.0,0.9565915577737383,4.440892098500626e-16
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_oaps_site_evolution,0.05555555555555555,0.9408347279916255,0.012706393569405408
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_oaps_site_evolution,0.1111111111111111,0.921840001628562,0.02257380690940005
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_oaps_site_evolution,0.16666666666666666,0.8968164836875577,0.028208592284318757
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_oaps_site_evolution,0.2222222222222222,0.8747506406511024,0.033903170060356605
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_oaps_site_evolution,0.2777777777777778,0.848564239278912,0.0401219709582852
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_oaps_site_evolution,0.3333333333333333,0.8257625069893099,0.055677001748264024
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_oaps_site_evolution,0.38888888888888884,0.7734909950970913,0.09001817942060783
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_oaps_site_evolution,0.4444444444444444,0.7228131153840185,0.09189819144632624
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_oaps_site_evolution,0.5,0.6957523500094716,0.11537764041199623
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_zhang_site_evolution,0.0,0.9163646053282849,1.1102230246251565e-16
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_zhang_site_evolution,0.05555555555555555,0.9189481770871395,0.014899688219044468
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_zhang_site_evolution,0.1111111111111111,0.9043019857865705,0.019153879579577194
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_zhang_site_evolution,0.16666666666666666,0.8775681082259088,0.029514447151921492
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_zhang_site_evolution,0.2222222222222222,0.840926535272725,0.046985919693494985
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_zhang_site_evolution,0.2777777777777778,0.7871774515844784,0.06369958135816549
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_zhang_site_evolution,0.3333333333333333,0.7571318708377577,0.0716478501613375
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_zhang_site_evolution,0.38888888888888884,0.6782068314085169,0.11265402881836768
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_zhang_site_evolution,0.4444444444444444,0.6406475417139902,0.13167578973775157
+../adapted_zhang_implementation/optimized_models/n16_25amp_25prob_zhang_site_evolution,0.5,0.551842085603078,0.1392884839101111
+(action-by-site),0.0,0.9909254776407825,0.0007479202089254006
+(action-by-site),0.05555555555555555,0.9811508104529287,0.005241280522307675
+(action-by-site),0.1111111111111111,0.9574722763715992,0.015185522262113529
+(action-by-site),0.16666666666666666,0.9113375253605149,0.03533069801515815
+(action-by-site),0.2222222222222222,0.8523831035221293,0.06441657185656834
+(action-by-site),0.2777777777777778,0.7927589188929349,0.08477475252813152
+(action-by-site),0.3333333333333333,0.689233959933643,0.12038645370462372
+(action-by-site),0.38888888888888884,0.631861300695726,0.1280236464401561
+(action-by-site),0.4444444444444444,0.5096542209127345,0.15856048707483064
+(action-by-site),0.5,0.48586439510102775,0.15565104496841295
+(Zhang actions),0.0,0.9380861636524997,0.002728662379500513
+(Zhang actions),0.05555555555555555,0.9292857051419737,0.005758970408522724
+(Zhang actions),0.1111111111111111,0.9036173105575924,0.02237094175042686
+(Zhang actions),0.16666666666666666,0.8646288749229903,0.03163263797132216
+(Zhang actions),0.2222222222222222,0.8036948303735729,0.051427065758093624
+(Zhang actions),0.2777777777777778,0.7303563933101481,0.08802059178413153
+(Zhang actions),0.3333333333333333,0.6842289256809851,0.12981668669333626
+(Zhang actions),0.38888888888888884,0.5793261165900351,0.10525152803637147
+(Zhang actions),0.4444444444444444,0.4832969310664579,0.15570866669512462
+(Zhang actions),0.5,0.4596325114633164,0.10300464269537773
