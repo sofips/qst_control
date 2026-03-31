@@ -13,8 +13,8 @@ config = configparser.ConfigParser()
 
 # system parameters
 
-initial_n = 32  # set initial n
-final_n = 33  # set final n
+initial_n = 16  # set initial n
+final_n = 32  # set final n
 n_step = 4
 dt = 0.15      # length of temporal steps
 b = 100        # magnetic field strength
@@ -29,8 +29,8 @@ if fitness_function == 'loc_based':
 else:
     speed_fraction = 0
 
-
-action_set = 'oaps'  # Options are: 'oaps', 'zhang'
+action_set = 'not_homogeneous_zhang'  # Options are: 'oaps', 'zhang', 'not_homogeneous_oaps', 'not_homogeneous_zhang'
+epsilon = 0.25  # Perturbation strength for non-homogeneous actions (if oaps or zhang, this parameter is not used)
 
 num_generations = 1000
 sol_per_pop = 4096
@@ -53,7 +53,7 @@ mutation_num_genes = 'n'
 
 # execution and results saving
 directory = sys.argv[1]
-n_samples = 30
+n_samples = 10
 
 
 config["system_parameters"] = {
@@ -63,6 +63,7 @@ config["system_parameters"] = {
     "dt": str(dt),
     "b": str(b),
     "coupling": str(coupling),
+    "epsilon": str(epsilon),
     "action_set": action_set,
     "speed_fraction": str(speed_fraction)
 }

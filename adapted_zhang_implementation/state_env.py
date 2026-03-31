@@ -150,3 +150,54 @@ class State(object):
 
         self.state = next_states  # this vector is input to the network
         return self.state, reward, fidelity
+    
+    
+    
+    def site_noise_step(self, actionnum):
+        
+        self.stp += 1
+
+        prop = self.propagators[actionnum]
+
+        statess = [
+            complex(self.state[2 * i], self.state[2 * i + 1])
+            for i in range(self.chain_length)
+        ]  # transfer real vector to complex vector
+
+        statelist = np.transpose(np.mat(statess))  # to 'matrix'
+        next_state = prop * statelist  # do operation
+
+        reward = self.reward_function(
+            next_state,
+            time_step=self.stp,
+            config_instance=self.config_instance
+        )
+        fidelity = state_fidelity(next_state)
+
+        # apply noise in case of noisy environment
+        noise = self.config_instance.getboolean("noise_parameters", "noise")
+        noise_amplitude = self.config_instance.getfloat("noise_parameters",
+                                                        "noise_amplitude")
+        noise_probability = self.config_instance.getfloat("noise_parameters",
+                                                          "noise_probability")
+
+        if noise:
+            for i in range(self.chain_length):
+                if np.random.rand() < noise_probability:
+                    random_phase = np.random.uniform(-1, 1) * noise_amplitude
+                    next_state[i] = next_state[i] * np.exp(1j * random_phase)
+
+        norm = np.linalg.norm(next_state)
+        if 1 - norm > 1e-10:
+            raise ValueError("State is not normalized after noise addition")
+
+        if fidelity > self.maxfid:
+            self.maxfid = state_fidelity(next_state)
+
+        next_states = [next_state[i, 0] for i in range(self.chain_length)]
+        next_states = np.array(
+            list(itertools.chain(*[(i.real, i.imag) for i in next_states]))
+        )  # complex to real vector
+
+        self.state = next_states  # this vector is input to the network
+        return self.state, reward, fidelity

@@ -127,4 +127,4 @@ with mlflow.start_run(experiment_id=experiment.experiment_id, run_name=experimen
                 
                 # Log the validation metrics
                 for key, value in validation_metrics.items():
-                    mlflow.log_metric(f"validation_{key}", value)
+                    mlflow.log_metric(f"{key}", value)
